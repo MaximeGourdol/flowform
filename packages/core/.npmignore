@@ -1,0 +1,13 @@
+# Source & configs — only dist ships (see package.json "files")
+src/
+*.config.ts
+tsconfig.json
+tsconfig.tsbuildinfo
+*.test.ts
+*.spec.ts
+vitest.config.ts
+
+# Tooling artifacts
+.turbo/
+coverage/
+node_modules/
