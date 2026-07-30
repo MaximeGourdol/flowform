@@ -4,6 +4,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["*.ts", "*.mts", "*.cts"],
-  "references": [{ "path": "./packages/core" }]
+  "include": ["*.ts", "*.mts", "*.cts"]
 }

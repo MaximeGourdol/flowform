@@ -40,12 +40,23 @@ export default tseslint.config(
         'warn',
         { allowExpressions: true },
       ],
+      'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+      'prefer-arrow-callback': 'error',
+      'no-inline-comments': 'error',
     },
   },
-  // Config / tooling files: not part of any package's tsconfig, lint without type info.
   {
     files: ['**/*.config.{js,ts,mjs,cjs}', 'eslint.config.js'],
     extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    files: ['**/*.{test,spec}.ts', '**/*.test-d.ts'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+    },
   },
   prettier,
 );
