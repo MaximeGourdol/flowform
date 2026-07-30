@@ -4,6 +4,7 @@ import {
   type Step,
   type Validator,
 } from '@flowform/core';
+import { devtoolsPlugin } from '@flowform/plugin-devtools';
 
 export interface SignupValues {
   account: { email: string; password: string };
@@ -60,4 +61,4 @@ export const createSignupForm = (): FormCore<SignupValues> =>
       terms: { accepted: false },
     },
     steps: signupSteps,
-  });
+  }).use(devtoolsPlugin());

@@ -1,0 +1,47 @@
+{
+  "name": "@flowform/devtools-ui",
+  "version": "0.0.0",
+  "description": "Web component overlay for @flowform/plugin-devtools — Shadow DOM event timeline, zero UI-framework dependency",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "./dist/register.js",
+    "./dist/register.cjs"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./register": {
+      "types": "./dist/register.d.ts",
+      "import": "./dist/register.js",
+      "require": "./dist/register.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "@flowform/plugin-devtools": "workspace:*"
+  },
+  "devDependencies": {
+    "@flowform/plugin-devtools": "workspace:*",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2"
+  }
+}

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { createSignupForm, type SignupValues } from './form';
 import { useCurrentStep, useField } from './useFlowForm';
+import { DevtoolsPanel } from './DevtoolsPanel';
 
 type Form = ReturnType<typeof createSignupForm>;
 
@@ -221,6 +222,9 @@ const App = (): ReactElement => {
         </pre>
         <h2 style={styles.title}>Event bus log</h2>
         <pre style={styles.pre}>{log.join('\n') || '(no events yet)'}</pre>
+
+        <h2 style={styles.title}>Devtools timeline (web component)</h2>
+        <DevtoolsPanel api={form.devtools} />
       </div>
     </div>
   );

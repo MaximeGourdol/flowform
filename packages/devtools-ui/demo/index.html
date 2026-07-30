@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@flowform/devtools-ui — timeline demo</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f1f5f9;
+        color: #0f172a;
+        margin: 0;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      p {
+        margin: 0;
+        color: #475569;
+        font-size: 14px;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      button {
+        font: inherit;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>@flowform/devtools-ui</h1>
+    <p>
+      Web component fed by a <strong>fake DevtoolsApi</strong>. Click to emit
+      events — the timeline updates live via <code>subscribeToLog</code>.
+    </p>
+
+    <div class="controls">
+      <button data-emit="field:change">emit field:change</button>
+      <button data-emit="step:change">emit step:change</button>
+      <button data-emit="validate:end">emit validate:end</button>
+      <button data-emit="submit:end">emit submit:end</button>
+    </div>
+
+    <flowform-devtools-timeline></flowform-devtools-timeline>
+
+    <script type="module">
+      import '../dist/register.js';
+
+      const listeners = new Set();
+      let log = [];
+      let clock = 1;
+
+      const samplePayload = (type) => {
+        if (type === 'field:change')
+          return { path: 'account.email', value: 'a@b.co' };
+        if (type === 'step:change') return { from: 'account', to: 'profile' };
+        if (type === 'validate:end')
+          return { errors: { 'account.email': ['Invalid'] } };
+        return { errors: {}, ok: true };
+      };
+
+      const push = (type) => {
+        log = [
+          ...log,
+          { v: 1, type, payload: samplePayload(type), timestamp: clock++ },
+        ];
+        queueMicrotask(() => {
+          for (const listener of [...listeners]) listener(log.slice());
+        });
+      };
+
+      const fakeApi = {
+        getEventLog: () => log.slice(),
+        getSnapshot: () => ({
+          values: {},
+          errors: {},
+          touched: {},
+          dirty: {},
+          timestamp: clock,
+        }),
+        subscribeToLog: (listener) => {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+        clearLog: () => {
+          log = [];
+          queueMicrotask(() => {
+            for (const listener of [...listeners]) listener([]);
+          });
+        },
+        replay: () => {},
+      };
+
+      const el = document.querySelector('flowform-devtools-timeline');
+      el.setApi(fakeApi);
+
+      for (const button of document.querySelectorAll('[data-emit]')) {
+        button.addEventListener('click', () => push(button.dataset.emit));
+      }
+
+      push('field:change');
+      push('step:change');
+    </script>
+  </body>
+</html>

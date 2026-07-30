@@ -1,0 +1,39 @@
+{
+  "name": "@flowform/plugin-devtools",
+  "version": "0.0.0",
+  "description": "Devtools collector plugin for @flowform/core — subscribes to the event bus and aggregates a versioned event log and state snapshots (no visual rendering)",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "@flowform/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@flowform/core": "workspace:*",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2"
+  }
+}
