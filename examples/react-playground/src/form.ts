@@ -5,10 +5,13 @@ import {
   type Validator,
 } from '@flowform/core';
 import { devtoolsPlugin } from '@flowform/plugin-devtools';
+import { stepsConditionalPlugin } from '@flowform/plugin-steps-conditional';
 
 export interface SignupValues {
   account: { email: string; password: string };
   profile: { displayName: string };
+  needsShipping: boolean;
+  shipping: { address: string; zip: string };
   terms: { accepted: boolean };
 }
 
@@ -44,6 +47,14 @@ export const signupSteps: readonly Step<SignupValues>[] = [
     ),
   },
   {
+    id: 'shipping',
+    validate: required(
+      'shipping.address',
+      (v) => v.shipping.address,
+      'Address is required',
+    ),
+  },
+  {
     id: 'terms',
     validate: required(
       'terms.accepted',
@@ -58,7 +69,24 @@ export const createSignupForm = (): FormCore<SignupValues> =>
     initialValues: {
       account: { email: '', password: '' },
       profile: { displayName: '' },
+      needsShipping: false,
+      shipping: { address: '', zip: '' },
       terms: { accepted: false },
     },
     steps: signupSteps,
-  }).use(devtoolsPlugin());
+  })
+    .use(devtoolsPlugin())
+    .use(
+      stepsConditionalPlugin<SignupValues>({
+        rules: [
+          {
+            stepId: 'shipping',
+            when: { field: 'needsShipping', filled: true },
+            clears: [
+              { path: 'shipping.address', resetTo: '' },
+              { path: 'shipping.zip', resetTo: '' },
+            ],
+          },
+        ],
+      }),
+    );

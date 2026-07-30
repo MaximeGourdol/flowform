@@ -19,7 +19,12 @@ const TextField = ({
   type = 'text',
 }: {
   form: Form;
-  path: 'account.email' | 'account.password' | 'profile.displayName';
+  path:
+    | 'account.email'
+    | 'account.password'
+    | 'profile.displayName'
+    | 'shipping.address'
+    | 'shipping.zip';
   label: string;
   type?: string;
 }): ReactElement => {
@@ -55,6 +60,29 @@ const TermsField = ({ form }: { form: Form }): ReactElement => {
   );
 };
 
+const NeedsShippingField = ({ form }: { form: Form }): ReactElement => {
+  const needsShipping = useField(form, 'needsShipping');
+  return (
+    <div style={styles.checkbox}>
+      <input
+        id="needsShipping"
+        type="checkbox"
+        checked={needsShipping}
+        onChange={(e) => {
+          form.store.setValue('needsShipping', e.target.checked);
+          form.bus.emit('field:change', {
+            path: 'needsShipping',
+            value: e.target.checked,
+          });
+        }}
+      />
+      <label htmlFor="needsShipping">
+        I need shipping (adds a conditional step)
+      </label>
+    </div>
+  );
+};
+
 const StepBody = ({
   form,
   step,
@@ -77,7 +105,22 @@ const StepBody = ({
   }
   if (step === 'profile') {
     return (
-      <TextField form={form} path="profile.displayName" label="Display name" />
+      <>
+        <TextField
+          form={form}
+          path="profile.displayName"
+          label="Display name"
+        />
+        <NeedsShippingField form={form} />
+      </>
+    );
+  }
+  if (step === 'shipping') {
+    return (
+      <>
+        <TextField form={form} path="shipping.address" label="Address" />
+        <TextField form={form} path="shipping.zip" label="ZIP" />
+      </>
     );
   }
   if (step === 'terms') {
@@ -108,6 +151,9 @@ const App = (): ReactElement => {
   const [values, setValues] = useState<SignupValues>(
     () => form.store.getState().values,
   );
+  const [activeSteps, setActiveSteps] = useState<readonly string[]>(() =>
+    form.conditionalSteps.activeStepIds(),
+  );
 
   useEffect(() => {
     const offStep = form.bus.on('step:change', (p: EventMap['step:change']) => {
@@ -117,6 +163,22 @@ const App = (): ReactElement => {
       'field:change',
       (p: EventMap['field:change']) => {
         setLog((l) => [`field:change ${p.path} = ${String(p.value)}`, ...l]);
+        const active = form.conditionalSteps.activeStepIds();
+        setActiveSteps(active);
+        setValues({ ...form.store.getState().values });
+        const current = form.steps.currentStep();
+        if (current !== null && !active.includes(current)) {
+          const fallback = [...active]
+            .reverse()
+            .find(
+              (id) =>
+                form.steps.steps.findIndex((s) => s.id === id) <=
+                form.steps.steps.findIndex((s) => s.id === current),
+            );
+          if (fallback !== undefined) {
+            form.steps.goTo(fallback);
+          }
+        }
       },
     );
     return () => {
@@ -134,45 +196,63 @@ const App = (): ReactElement => {
     syncValues();
   };
 
+  const activeIndex = step === null ? -1 : activeSteps.indexOf(step);
+
   const onNext = async (): Promise<void> => {
     const found = await runStepValidator(form, step);
     setErrors(found);
     form.store.setErrors(found);
-    if (Object.keys(found).length === 0) {
-      await form.steps.goNext();
+    if (Object.keys(found).length > 0) {
+      return;
+    }
+    const nextId = activeSteps[activeIndex + 1];
+    if (nextId !== undefined) {
+      form.steps.goTo(nextId);
     }
   };
 
   const onPrev = (): void => {
     setErrors({});
-    form.steps.goPrev();
+    const prevId = activeSteps[activeIndex - 1];
+    if (prevId !== undefined) {
+      form.steps.goTo(prevId);
+    }
   };
 
-  const index = form.steps.currentIndex();
-  const total = form.steps.steps.length;
+  const index = activeIndex;
+  const total = activeSteps.length;
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
         <h1 style={styles.title}>@flowform/core</h1>
         <p style={styles.subtitle}>
-          Headless core driving a React 3-step signup — no plugins.
+          Headless core + devtools + conditional steps plugins.
         </p>
 
         <div style={styles.progress}>
-          {form.steps.steps.map((s, i) => (
-            <span
-              key={s.id}
-              style={{
-                ...styles.dot,
-                ...(i === index ? styles.dotActive : {}),
-                ...(i < index ? styles.dotDone : {}),
-              }}
-            >
-              {s.id}
-            </span>
-          ))}
+          {form.steps.steps.map((s) => {
+            const removed = !activeSteps.includes(s.id);
+            const activePos = activeSteps.indexOf(s.id);
+            const isCurrent = s.id === step;
+            const isDone = !removed && activePos < index;
+            return (
+              <span
+                key={s.id}
+                style={{
+                  ...styles.dot,
+                  ...(isCurrent ? styles.dotActive : {}),
+                  ...(isDone ? styles.dotDone : {}),
+                  ...(removed ? styles.dotRemoved : {}),
+                }}
+              >
+                {s.id}
+                {removed ? ' ✕' : ''}
+              </span>
+            );
+          })}
         </div>
+        <p style={styles.subtitle}>Active steps: {activeSteps.join(' → ')}</p>
 
         <div style={styles.body} onBlur={syncValues}>
           <StepBody form={form} step={step} />
@@ -260,6 +340,12 @@ const styles: Record<string, CSSProperties> = {
   },
   dotActive: { background: '#2563eb', color: '#fff' },
   dotDone: { background: '#bbf7d0', color: '#166534' },
+  dotRemoved: {
+    background: '#fee2e2',
+    color: '#b91c1c',
+    textDecoration: 'line-through',
+    opacity: 0.7,
+  },
   body: { display: 'flex', flexDirection: 'column', gap: 12, minHeight: 96 },
   label: { display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 },
   input: {
