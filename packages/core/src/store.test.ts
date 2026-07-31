@@ -128,4 +128,48 @@ describe('reset', () => {
     expect(store.getValue('agree')).toBe(true);
     expect(store.getState().dirty).toEqual({});
   });
+
+  it('deep-merges a partial patch without dropping sibling nested keys', () => {
+    const s = createStore<Values>(initial);
+    s.reset({ user: { name: 'Grace' } as Values['user'] });
+    expect(s.getValue('user.name')).toBe('Grace');
+    expect(s.getValue('user.email')).toBe('ada@example.com');
+    expect(s.getValue('user.tags')).toEqual(['a', 'b']);
+  });
+});
+
+describe('clone / non-plain values', () => {
+  it('preserves Date instances instead of turning them into {}', () => {
+    const dated = createStore<{ birthday: Date }>({
+      birthday: new Date('2020-01-01T00:00:00.000Z'),
+    });
+    const value = dated.getValue('birthday');
+    expect(value).toBeInstanceOf(Date);
+    expect(value.toISOString()).toBe('2020-01-01T00:00:00.000Z');
+  });
+
+  it('does not overflow the stack on a cyclic initial value', () => {
+    interface Node {
+      readonly self?: Node;
+    }
+    const cyclic: { node: Node } = { node: {} };
+    (cyclic.node as { self?: Node }).self = cyclic.node;
+    expect(() => createStore<{ node: Node }>(cyclic)).not.toThrow();
+  });
+});
+
+describe('setValue / array creation', () => {
+  it('creates an array when writing a fresh numeric path on a missing parent', () => {
+    const s = createStore<{ matrix: Record<string, string[]> }>({ matrix: {} });
+    s.setValue('matrix.row.0' as never, 'x' as never);
+    expect(Array.isArray(s.getState().values.matrix.row)).toBe(true);
+  });
+});
+
+describe('dirty / removals', () => {
+  it('reports an array that lost an element as dirty', () => {
+    const s = createStore<{ tags: string[] }>({ tags: ['a', 'b'] });
+    s.setValue('tags', ['a']);
+    expect(s.getState().dirty).not.toEqual({});
+  });
 });

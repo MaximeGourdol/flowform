@@ -34,19 +34,62 @@ type UnknownRecord = Record<string, unknown>;
 const isRecord = (value: unknown): value is UnknownRecord =>
   typeof value === 'object' && value !== null;
 
-const clone = <T>(value: T): T => {
-  if (Array.isArray(value)) {
-    return value.map((item: unknown) => clone(item)) as T;
+const isPlainObject = (value: unknown): value is UnknownRecord => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
   }
-  if (isRecord(value)) {
-    const out: UnknownRecord = {};
-    for (const key of Object.keys(value)) {
-      out[key] = clone(value[key]);
+  const proto = Object.getPrototypeOf(value) as unknown;
+  return proto === Object.prototype || proto === null;
+};
+
+const cloneInner = <T>(value: T, seen: WeakMap<object, unknown>): T => {
+  if (typeof value !== 'object' || value === null) {
+    return value;
+  }
+  const existing = seen.get(value);
+  if (existing !== undefined) {
+    return existing as T;
+  }
+  if (Array.isArray(value)) {
+    const out: unknown[] = [];
+    seen.set(value, out);
+    for (const item of value as unknown[]) {
+      out.push(cloneInner(item, seen));
     }
     return out as T;
   }
-  return value;
+  if (value instanceof Date) {
+    return new Date(value.getTime()) as T;
+  }
+  if (value instanceof Map) {
+    const out = new Map<unknown, unknown>();
+    seen.set(value, out);
+    for (const [k, v] of value) {
+      out.set(k, cloneInner(v, seen));
+    }
+    return out as T;
+  }
+  if (value instanceof Set) {
+    const out = new Set<unknown>();
+    seen.set(value, out);
+    for (const v of value) {
+      out.add(cloneInner(v, seen));
+    }
+    return out as T;
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+  const out: UnknownRecord = {};
+  seen.set(value, out);
+  for (const key of Object.keys(value)) {
+    out[key] = cloneInner(value[key], seen);
+  }
+  return out as T;
 };
+
+const clone = <T>(value: T): T =>
+  cloneInner(value, new WeakMap<object, unknown>());
 
 const readPath = (source: unknown, path: string): unknown => {
   const segments = path.split('.');
@@ -71,11 +114,14 @@ const writePath = (
     return;
   }
   const parents = segments.slice(0, -1);
+  const isIndex = (segment: string): boolean => /^\d+$/.test(segment);
   let cursor: UnknownRecord = target;
-  for (const segment of parents) {
+  for (const [i, segment] of parents.entries()) {
     const next = cursor[segment];
     if (!isRecord(next) && !Array.isArray(next)) {
-      cursor[segment] = {};
+      const childSegment = segments[i + 1];
+      cursor[segment] =
+        childSegment !== undefined && isIndex(childSegment) ? [] : {};
     }
     cursor = cursor[segment] as UnknownRecord;
   }
@@ -94,20 +140,28 @@ export const createStore = <TValues>(
 
   const listeners = new Map<string, Set<(value: unknown) => void>>();
 
+  const isContainer = (value: unknown): value is UnknownRecord =>
+    (isRecord(value) || Array.isArray(value)) &&
+    !(value instanceof Date) &&
+    !(value instanceof Map) &&
+    !(value instanceof Set);
+
+  const containerKeys = (value: UnknownRecord): string[] =>
+    Array.isArray(value) ? value.map((_, i) => String(i)) : Object.keys(value);
+
   const dirty = (): Record<string, boolean> => {
     const out: Record<string, boolean> = {};
     const walk = (base: unknown, current: unknown, prefix: string): void => {
-      if (isRecord(current) || Array.isArray(current)) {
-        const keys = Array.isArray(current)
-          ? current.map((_, i) => String(i))
-          : Object.keys(current);
+      const baseContainer = isContainer(base);
+      const currentContainer = isContainer(current);
+      if (baseContainer && currentContainer) {
+        const keys = new Set([
+          ...containerKeys(base),
+          ...containerKeys(current),
+        ]);
         for (const key of keys) {
           const nextPrefix = prefix === '' ? key : `${prefix}.${key}`;
-          const baseChild =
-            isRecord(base) || Array.isArray(base)
-              ? (base as UnknownRecord)[key]
-              : undefined;
-          walk(baseChild, (current as UnknownRecord)[key], nextPrefix);
+          walk(base[key], current[key], nextPrefix);
         }
         return;
       }
@@ -186,11 +240,22 @@ export const createStore = <TValues>(
     isValidating = value;
   };
 
+  const deepMerge = (base: unknown, patch: unknown): unknown => {
+    if (!isPlainObject(base) || !isPlainObject(patch)) {
+      return clone(patch);
+    }
+    const out: UnknownRecord = { ...base };
+    for (const key of Object.keys(patch)) {
+      out[key] = deepMerge(base[key], patch[key]);
+    }
+    return out;
+  };
+
   const reset = (partial?: Partial<TValues>): void => {
     const next =
       partial === undefined
         ? clone(initialValues)
-        : { ...clone(initialValues), ...clone(partial) };
+        : (deepMerge(clone(initialValues), clone(partial)) as TValues);
     baseline = clone(next);
     values = clone(next);
     errors = {};

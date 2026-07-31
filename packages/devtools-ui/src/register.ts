@@ -1,6 +1,7 @@
 import { FlowformDevtoolsTimeline } from './timeline-element.js';
+import { TIMELINE_TAG } from './constants.js';
 
-export const TIMELINE_TAG = 'flowform-devtools-timeline';
+export { TIMELINE_TAG } from './constants.js';
 
 export const registerTimeline = (tag: string = TIMELINE_TAG): void => {
   if (customElements.get(tag) === undefined) {

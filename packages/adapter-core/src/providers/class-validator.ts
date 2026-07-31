@@ -20,7 +20,8 @@ export const isClassConstructor = (
 ): schema is ClassConstructor =>
   typeof schema === 'function' &&
   typeof schema.prototype === 'object' &&
-  schema.prototype !== null;
+  schema.prototype !== null &&
+  Function.prototype.toString.call(schema).startsWith('class ');
 
 const collect = (
   errors: readonly ClassValidationError[],

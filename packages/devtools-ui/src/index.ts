@@ -1,2 +1,2 @@
 export { FlowformDevtoolsTimeline } from './timeline-element.js';
-export { registerTimeline, TIMELINE_TAG } from './register.js';
+export { TIMELINE_TAG } from './constants.js';

@@ -29,6 +29,18 @@ export function toValidator(
   const abortEarly = options?.abortEarly ?? false;
   const scope = (map: ErrorMap): ErrorMap => filterByPaths(map, paths);
 
+  if (isYupSchema(schema)) {
+    return (values) => runYupSchema(schema, values, abortEarly).then(scope);
+  }
+
+  if (isJoiSchema(schema)) {
+    return (values) => scope(runJoiSchema(schema, values, abortEarly));
+  }
+
+  if (isAjvValidateFunction(schema)) {
+    return (values) => scope(runAjvValidate(schema, values));
+  }
+
   if (isStandardSchema(schema)) {
     return (values) => {
       const result = runStandardSchema(schema, values);
@@ -37,18 +49,6 @@ export function toValidator(
       }
       return scope(result);
     };
-  }
-
-  if (isJoiSchema(schema)) {
-    return (values) => scope(runJoiSchema(schema, values, abortEarly));
-  }
-
-  if (isYupSchema(schema)) {
-    return (values) => runYupSchema(schema, values, abortEarly).then(scope);
-  }
-
-  if (isAjvValidateFunction(schema)) {
-    return (values) => scope(runAjvValidate(schema, values));
   }
 
   if (isClassConstructor(schema)) {

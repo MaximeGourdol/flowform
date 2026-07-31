@@ -108,4 +108,29 @@ describe('toValidator — detection isolation', () => {
     const result = await validate({});
     expect(result.a).toEqual(['Required']);
   });
+
+  it('routes Yup through its own provider and honors abortEarly', async () => {
+    const yupNs = await import('yup');
+    const schema = yupNs.object({
+      a: yupNs.string().required('a required'),
+      b: yupNs.string().required('b required'),
+    });
+    const validate = toValidator(schema, { abortEarly: true });
+    const result = await validate({} as { a: string; b: string });
+    expect(Object.keys(result)).toHaveLength(1);
+  });
+});
+
+describe('toValidator — Ajv JSON Pointer decoding', () => {
+  it('decodes ~1 and ~0 in property names', async () => {
+    const ajv2 = new Ajv({ allErrors: true });
+    const fn = ajv2.compile({
+      type: 'object',
+      properties: { 'a/b': { type: 'string', minLength: 2 } },
+      required: ['a/b'],
+    });
+    const validate = toValidator(fn);
+    const result = await validate({ 'a/b': 'x' });
+    expect(Object.keys(result)).toContain('a/b');
+  });
 });

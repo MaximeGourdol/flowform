@@ -7,16 +7,18 @@ export const isAjvValidateFunction = (
 ): schema is AjvValidateFunction =>
   typeof schema === 'function' && 'schema' in schema && 'errors' in schema;
 
+const decodePointer = (segment: string): string =>
+  segment.replace(/~1/g, '/').replace(/~0/g, '~');
+
 const instancePathToKey = (
   instancePath: string,
   keyword: string,
   params: Record<string, unknown>,
 ): string => {
-  const base = instancePath
-    .replace(/^\//, '')
-    .split('/')
-    .filter(Boolean)
-    .join('.');
+  const base =
+    instancePath === ''
+      ? ''
+      : instancePath.replace(/^\//, '').split('/').map(decodePointer).join('.');
   if (keyword === 'required' && typeof params.missingProperty === 'string') {
     return base === ''
       ? params.missingProperty

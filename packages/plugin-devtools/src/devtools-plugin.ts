@@ -38,14 +38,24 @@ export const devtoolsPlugin = (
   const now = options?.now ?? (() => Date.now());
   const tracked = options?.events ?? CORE_EVENTS;
 
-  const log: EventLog = createEventLog(options);
-  const offHandlers: Unsubscribe[] = [];
+  const state = new WeakMap<
+    object,
+    { readonly log: EventLog; readonly offHandlers: Unsubscribe[] }
+  >();
 
   return {
     name: 'devtools',
     install: (core) => {
+      const log: EventLog = createEventLog(options);
+      const offHandlers: Unsubscribe[] = [];
+      let replaying = false;
+      state.set(core, { log, offHandlers });
+
       for (const type of tracked) {
         const off = core.bus.on(type, (payload) => {
+          if (replaying) {
+            return;
+          }
           const timestamp = now();
           log.append(
             type,
@@ -65,16 +75,26 @@ export const devtoolsPlugin = (
           log.clear();
         },
         replay: (fromIndex, toIndex) => {
-          replayEvents({ bus: core.bus, log }, fromIndex, toIndex);
+          replaying = true;
+          try {
+            replayEvents({ bus: core.bus, log }, fromIndex, toIndex);
+          } finally {
+            replaying = false;
+          }
         },
       };
     },
-    uninstall: () => {
-      for (const off of offHandlers) {
+    uninstall: (core) => {
+      const entry = state.get(core);
+      if (entry === undefined) {
+        return;
+      }
+      for (const off of entry.offHandlers) {
         off();
       }
-      offHandlers.length = 0;
-      log.clear();
+      entry.offHandlers.length = 0;
+      entry.log.clear();
+      state.delete(core);
     },
   };
 };
