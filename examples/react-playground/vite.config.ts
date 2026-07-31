@@ -3,4 +3,11 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        experimentalDecorators: true,
+      },
+    },
+  },
 });

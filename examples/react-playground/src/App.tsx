@@ -12,6 +12,15 @@ import { DevtoolsPanel } from './DevtoolsPanel';
 
 type Form = ReturnType<typeof createSignupForm>;
 
+const stepProviders: Record<string, string> = {
+  account: 'Zod',
+  profile: 'Yup',
+  security: 'class-validator',
+  shipping: 'Joi',
+  consent: 'Ajv',
+  terms: 'manual',
+};
+
 const TextField = ({
   form,
   path,
@@ -23,6 +32,7 @@ const TextField = ({
     | 'account.email'
     | 'account.password'
     | 'profile.displayName'
+    | 'security.pin'
     | 'shipping.address'
     | 'shipping.zip';
   label: string;
@@ -83,6 +93,23 @@ const NeedsShippingField = ({ form }: { form: Form }): ReactElement => {
   );
 };
 
+const ConsentField = ({ form }: { form: Form }): ReactElement => {
+  const accepted = useField(form, 'consent.acceptedTos');
+  return (
+    <div style={styles.checkbox}>
+      <input
+        id="acceptedTos"
+        type="checkbox"
+        checked={accepted}
+        onChange={(e) => {
+          form.store.setValue('consent.acceptedTos', e.target.checked);
+        }}
+      />
+      <label htmlFor="acceptedTos">I accept the Terms of Service</label>
+    </div>
+  );
+};
+
 const StepBody = ({
   form,
   step,
@@ -115,6 +142,16 @@ const StepBody = ({
       </>
     );
   }
+  if (step === 'security') {
+    return (
+      <TextField
+        form={form}
+        path="security.pin"
+        label="PIN (min 4 chars)"
+        type="password"
+      />
+    );
+  }
   if (step === 'shipping') {
     return (
       <>
@@ -122,6 +159,9 @@ const StepBody = ({
         <TextField form={form} path="shipping.zip" label="ZIP" />
       </>
     );
+  }
+  if (step === 'consent') {
+    return <ConsentField form={form} />;
   }
   if (step === 'terms') {
     return <TermsField form={form} />;
@@ -227,7 +267,7 @@ const App = (): ReactElement => {
       <div style={styles.card}>
         <h1 style={styles.title}>@flowform/core</h1>
         <p style={styles.subtitle}>
-          Headless core + devtools + conditional steps plugins.
+          One step per validation provider — all through a single toValidator.
         </p>
 
         <div style={styles.progress}>
@@ -246,7 +286,7 @@ const App = (): ReactElement => {
                   ...(removed ? styles.dotRemoved : {}),
                 }}
               >
-                {s.id}
+                {s.id} · {stepProviders[s.id] ?? '—'}
                 {removed ? ' ✕' : ''}
               </span>
             );
