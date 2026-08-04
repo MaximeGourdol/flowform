@@ -1,9 +1,9 @@
 packages:
   - 'packages/*'
-  - 'examples/*'
 
 # esbuild ships a platform binary via a postinstall script; tsup + vitest need it.
 onlyBuiltDependencies:
   - esbuild
 allowBuilds:
+  '@parcel/watcher': false
   esbuild: true

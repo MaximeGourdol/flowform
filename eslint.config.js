@@ -10,7 +10,7 @@ export default tseslint.config(
       '**/coverage/**',
       '**/.turbo/**',
       '**/*.d.ts',
-      'examples/**',
+      'packages/angular/**',
     ],
   },
   js.configs.recommended,
