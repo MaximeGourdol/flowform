@@ -1,4 +1,5 @@
 import type { EventMap } from '@flowform/core';
+import { createFormHooks, FormProvider } from '@flowform/react';
 import {
   type CSSProperties,
   type ReactElement,
@@ -6,11 +7,12 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { createSignupForm, type SignupValues } from './form';
-import { useCurrentStep, useField } from './useFlowForm';
 import { DevtoolsPanel } from './DevtoolsPanel';
+import { createSignupForm, type SignupValues } from './form';
 
 type Form = ReturnType<typeof createSignupForm>;
+
+const { useField, useStep, useForm } = createFormHooks<SignupValues>();
 
 const stepProviders: Record<string, string> = {
   account: 'Zod',
@@ -21,13 +23,19 @@ const stepProviders: Record<string, string> = {
   terms: 'manual',
 };
 
+const FieldError = ({ path }: { path: string }): ReactElement | null => {
+  const { error } = useField(path as never);
+  if (error === undefined) {
+    return null;
+  }
+  return <p style={styles.error}>{error}</p>;
+};
+
 const TextField = ({
-  form,
   path,
   label,
   type = 'text',
 }: {
-  form: Form;
   path:
     | 'account.email'
     | 'account.password'
@@ -38,114 +46,56 @@ const TextField = ({
   label: string;
   type?: string;
 }): ReactElement => {
-  const value = useField(form, path);
+  const { register } = useField(path);
   return (
     <label style={styles.label}>
       <span>{label}</span>
-      <input
-        style={styles.input}
-        type={type}
-        value={value}
-        onChange={(e) => {
-          form.store.setValue(path, e.target.value);
-        }}
-      />
+      <input style={styles.input} type={type} {...register()} />
+      <FieldError path={path} />
     </label>
   );
 };
 
-const TermsField = ({ form }: { form: Form }): ReactElement => {
-  const accepted = useField(form, 'terms.accepted');
+const CheckboxField = ({
+  path,
+  label,
+}: {
+  path: 'terms.accepted' | 'needsShipping' | 'consent.acceptedTos';
+  label: string;
+}): ReactElement => {
+  const { register } = useField(path);
   return (
     <label style={styles.checkbox}>
-      <input
-        type="checkbox"
-        checked={accepted}
-        onChange={(e) => {
-          form.store.setValue('terms.accepted', e.target.checked);
-        }}
-      />
-      <span>I accept the terms and conditions</span>
+      <input type="checkbox" {...register({ type: 'checkbox' })} />
+      <span>{label}</span>
+      <FieldError path={path} />
     </label>
   );
 };
 
-const NeedsShippingField = ({ form }: { form: Form }): ReactElement => {
-  const needsShipping = useField(form, 'needsShipping');
-  return (
-    <div style={styles.checkbox}>
-      <input
-        id="needsShipping"
-        type="checkbox"
-        checked={needsShipping}
-        onChange={(e) => {
-          form.store.setValue('needsShipping', e.target.checked);
-          form.bus.emit('field:change', {
-            path: 'needsShipping',
-            value: e.target.checked,
-          });
-        }}
-      />
-      <label htmlFor="needsShipping">
-        I need shipping (adds a conditional step)
-      </label>
-    </div>
-  );
-};
-
-const ConsentField = ({ form }: { form: Form }): ReactElement => {
-  const accepted = useField(form, 'consent.acceptedTos');
-  return (
-    <div style={styles.checkbox}>
-      <input
-        id="acceptedTos"
-        type="checkbox"
-        checked={accepted}
-        onChange={(e) => {
-          form.store.setValue('consent.acceptedTos', e.target.checked);
-        }}
-      />
-      <label htmlFor="acceptedTos">I accept the Terms of Service</label>
-    </div>
-  );
-};
-
-const StepBody = ({
-  form,
-  step,
-}: {
-  form: Form;
-  step: string | null;
-}): ReactElement => {
+const StepBody = ({ step }: { step: string | null }): ReactElement => {
   if (step === 'account') {
     return (
       <>
-        <TextField form={form} path="account.email" label="Email" />
-        <TextField
-          form={form}
-          path="account.password"
-          label="Password"
-          type="password"
-        />
+        <TextField path="account.email" label="Email" />
+        <TextField path="account.password" label="Password" type="password" />
       </>
     );
   }
   if (step === 'profile') {
     return (
       <>
-        <TextField
-          form={form}
-          path="profile.displayName"
-          label="Display name"
+        <TextField path="profile.displayName" label="Display name" />
+        <CheckboxField
+          path="needsShipping"
+          label="I need shipping (adds a conditional step)"
         />
-        <NeedsShippingField form={form} />
       </>
     );
   }
   if (step === 'security') {
     return (
       <TextField
-        form={form}
         path="security.pin"
         label="PIN (min 4 chars)"
         type="password"
@@ -155,45 +105,131 @@ const StepBody = ({
   if (step === 'shipping') {
     return (
       <>
-        <TextField form={form} path="shipping.address" label="Address" />
-        <TextField form={form} path="shipping.zip" label="ZIP" />
+        <TextField path="shipping.address" label="Address" />
+        <TextField path="shipping.zip" label="ZIP" />
       </>
     );
   }
   if (step === 'consent') {
-    return <ConsentField form={form} />;
+    return (
+      <CheckboxField
+        path="consent.acceptedTos"
+        label="I accept the Terms of Service"
+      />
+    );
   }
   if (step === 'terms') {
-    return <TermsField form={form} />;
+    return (
+      <CheckboxField
+        path="terms.accepted"
+        label="I accept the terms and conditions"
+      />
+    );
   }
   return <p>Done.</p>;
 };
 
-const runStepValidator = async (
-  form: Form,
-  step: string | null,
-): Promise<Record<string, readonly string[]>> => {
-  const current = form.steps.steps.find((s) => s.id === step);
-  if (current?.validate === undefined) {
-    return {};
-  }
-  return current.validate(form.store.getState().values, {
-    ...(step === null ? {} : { currentStepId: step }),
-    trigger: 'step',
+const Wizard = (): ReactElement => {
+  const {
+    currentStep: step,
+    activeSteps,
+    index,
+    total,
+    isFirst,
+    isLast,
+    next,
+    prev,
+  } = useStep();
+  const { values, isSubmitting, handleSubmit } = useForm();
+  const [submitted, setSubmitted] = useState<SignupValues | null>(null);
+
+  const onSubmit = handleSubmit((valid) => {
+    setSubmitted(valid);
   });
+
+  return (
+    <div style={styles.card}>
+      <h1 style={styles.title}>@flowform/react</h1>
+      <p style={styles.subtitle}>
+        Provider + hooks — same headless core, zero manual store glue.
+      </p>
+
+      <div style={styles.progress}>
+        {activeSteps.map((id) => {
+          const isCurrent = id === step;
+          const isDone = activeSteps.indexOf(id) < index;
+          return (
+            <span
+              key={id}
+              style={{
+                ...styles.dot,
+                ...(isCurrent ? styles.dotActive : {}),
+                ...(isDone ? styles.dotDone : {}),
+              }}
+            >
+              {id} · {stepProviders[id] ?? '—'}
+            </span>
+          );
+        })}
+      </div>
+      <p style={styles.subtitle}>Active steps: {activeSteps.join(' → ')}</p>
+
+      <form
+        onSubmit={(event) => {
+          void onSubmit(event);
+        }}
+      >
+        <div style={styles.body}>
+          <StepBody step={step} />
+        </div>
+
+        <div style={styles.actions}>
+          <button
+            type="button"
+            style={styles.button}
+            onClick={prev}
+            disabled={isFirst}
+          >
+            Back
+          </button>
+          {isLast ? (
+            <button
+              type="submit"
+              style={{ ...styles.button, ...styles.primary }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Submitting…' : 'Submit'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              style={{ ...styles.button, ...styles.primary }}
+              onClick={() => {
+                void next();
+              }}
+              disabled={index >= total - 1}
+            >
+              Next
+            </button>
+          )}
+        </div>
+      </form>
+
+      {submitted !== null && (
+        <p style={styles.success}>
+          Submitted ✓ — {String(submitted.account.email || '(no email)')}
+        </p>
+      )}
+
+      <h2 style={styles.title}>Live form values</h2>
+      <pre style={styles.pre}>{JSON.stringify(values, null, 2)}</pre>
+    </div>
+  );
 };
 
 const App = (): ReactElement => {
   const form = useMemo<Form>(() => createSignupForm(), []);
-  const step = useCurrentStep(form);
-  const [errors, setErrors] = useState<Record<string, readonly string[]>>({});
   const [log, setLog] = useState<string[]>([]);
-  const [values, setValues] = useState<SignupValues>(
-    () => form.store.getState().values,
-  );
-  const [activeSteps, setActiveSteps] = useState<readonly string[]>(() =>
-    form.conditionalSteps.activeStepIds(),
-  );
 
   useEffect(() => {
     const offStep = form.bus.on('step:change', (p: EventMap['step:change']) => {
@@ -203,149 +239,31 @@ const App = (): ReactElement => {
       'field:change',
       (p: EventMap['field:change']) => {
         setLog((l) => [`field:change ${p.path} = ${String(p.value)}`, ...l]);
-        const active = form.conditionalSteps.activeStepIds();
-        setActiveSteps(active);
-        setValues({ ...form.store.getState().values });
-        const current = form.steps.currentStep();
-        if (current !== null && !active.includes(current)) {
-          const fallback = [...active]
-            .reverse()
-            .find(
-              (id) =>
-                form.steps.steps.findIndex((s) => s.id === id) <=
-                form.steps.steps.findIndex((s) => s.id === current),
-            );
-          if (fallback !== undefined) {
-            form.steps.goTo(fallback);
-          }
-        }
       },
     );
+    const offSubmit = form.bus.on('submit:end', (p: EventMap['submit:end']) => {
+      setLog((l) => [`submit:end ok=${String(p.ok)}`, ...l]);
+    });
     return () => {
       offStep();
       offField();
+      offSubmit();
     };
   }, [form]);
 
-  const syncValues = (): void => {
-    setValues({ ...form.store.getState().values });
-  };
-
-  const bridge = (path: string, value: unknown): void => {
-    form.bus.emit('field:change', { path, value });
-    syncValues();
-  };
-
-  const activeIndex = step === null ? -1 : activeSteps.indexOf(step);
-
-  const onNext = async (): Promise<void> => {
-    const found = await runStepValidator(form, step);
-    setErrors(found);
-    form.store.setErrors(found);
-    if (Object.keys(found).length > 0) {
-      return;
-    }
-    const nextId = activeSteps[activeIndex + 1];
-    if (nextId !== undefined) {
-      form.steps.goTo(nextId);
-    }
-  };
-
-  const onPrev = (): void => {
-    setErrors({});
-    const prevId = activeSteps[activeIndex - 1];
-    if (prevId !== undefined) {
-      form.steps.goTo(prevId);
-    }
-  };
-
-  const index = activeIndex;
-  const total = activeSteps.length;
-
   return (
     <div style={styles.page}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>@flowform/core</h1>
-        <p style={styles.subtitle}>
-          One step per validation provider — all through a single toValidator.
-        </p>
+      <FormProvider form={form} mode="onChange" reValidateMode="onChange">
+        <Wizard />
 
-        <div style={styles.progress}>
-          {form.steps.steps.map((s) => {
-            const removed = !activeSteps.includes(s.id);
-            const activePos = activeSteps.indexOf(s.id);
-            const isCurrent = s.id === step;
-            const isDone = !removed && activePos < index;
-            return (
-              <span
-                key={s.id}
-                style={{
-                  ...styles.dot,
-                  ...(isCurrent ? styles.dotActive : {}),
-                  ...(isDone ? styles.dotDone : {}),
-                  ...(removed ? styles.dotRemoved : {}),
-                }}
-              >
-                {s.id} · {stepProviders[s.id] ?? '—'}
-                {removed ? ' ✕' : ''}
-              </span>
-            );
-          })}
+        <div style={styles.card}>
+          <h2 style={styles.title}>Event bus log</h2>
+          <pre style={styles.pre}>{log.join('\n') || '(no events yet)'}</pre>
+
+          <h2 style={styles.title}>Devtools timeline (web component)</h2>
+          <DevtoolsPanel />
         </div>
-        <p style={styles.subtitle}>Active steps: {activeSteps.join(' → ')}</p>
-
-        <div style={styles.body} onBlur={syncValues}>
-          <StepBody form={form} step={step} />
-        </div>
-
-        {Object.entries(errors).map(([path, messages]) => (
-          <p key={path} style={styles.error}>
-            {path}: {messages.join(', ')}
-          </p>
-        ))}
-
-        <div style={styles.actions}>
-          <button style={styles.button} onClick={onPrev} disabled={index <= 0}>
-            Back
-          </button>
-          <button
-            style={{ ...styles.button, ...styles.primary }}
-            onClick={() => {
-              void onNext();
-            }}
-            disabled={index >= total - 1}
-          >
-            Next
-          </button>
-          <button
-            style={styles.button}
-            onClick={() => {
-              bridge(
-                'profile.displayName',
-                form.store.getValue('profile.displayName'),
-              );
-            }}
-          >
-            Emit field:change
-          </button>
-        </div>
-      </div>
-
-      <div style={styles.card}>
-        <h2 style={styles.title}>Live store state</h2>
-        <pre style={styles.pre}>
-          {JSON.stringify(
-            { step, index, values, storeErrors: form.store.getState().errors },
-            null,
-            2,
-          )}
-        </pre>
-        <h2 style={styles.title}>Event bus log</h2>
-        <pre style={styles.pre}>{log.join('\n') || '(no events yet)'}</pre>
-
-        <h2 style={styles.title}>Devtools timeline (web component)</h2>
-        <DevtoolsPanel api={form.devtools} />
-      </div>
+      </FormProvider>
     </div>
   );
 };
@@ -370,7 +288,7 @@ const styles: Record<string, CSSProperties> = {
   },
   title: { margin: '0 0 4px', fontSize: 18 },
   subtitle: { margin: '0 0 16px', color: '#64748b', fontSize: 13 },
-  progress: { display: 'flex', gap: 8, marginBottom: 16 },
+  progress: { display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
   dot: {
     padding: '4px 10px',
     borderRadius: 999,
@@ -380,12 +298,6 @@ const styles: Record<string, CSSProperties> = {
   },
   dotActive: { background: '#2563eb', color: '#fff' },
   dotDone: { background: '#bbf7d0', color: '#166534' },
-  dotRemoved: {
-    background: '#fee2e2',
-    color: '#b91c1c',
-    textDecoration: 'line-through',
-    opacity: 0.7,
-  },
   body: { display: 'flex', flexDirection: 'column', gap: 12, minHeight: 96 },
   label: { display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 },
   input: {
@@ -396,6 +308,7 @@ const styles: Record<string, CSSProperties> = {
   },
   checkbox: { display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 },
   error: { color: '#dc2626', fontSize: 13, margin: '4px 0 0' },
+  success: { color: '#166534', fontSize: 14, margin: '12px 0 0' },
   actions: { display: 'flex', gap: 8, marginTop: 20 },
   button: {
     padding: '8px 14px',

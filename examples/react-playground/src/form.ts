@@ -8,11 +8,11 @@ import {
 } from '@flowform/core';
 import { devtoolsPlugin } from '@flowform/plugin-devtools';
 import { stepsConditionalPlugin } from '@flowform/plugin-steps-conditional';
-import * as yup from 'yup';
-import { z } from 'zod';
-import Joi from 'joi';
 import Ajv from 'ajv';
 import { IsNotEmpty, MinLength } from 'class-validator';
+import Joi from 'joi';
+import * as yup from 'yup';
+import { z } from 'zod';
 
 export interface SignupValues {
   account: { email: string; password: string };

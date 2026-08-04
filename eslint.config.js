@@ -51,7 +51,7 @@ export default tseslint.config(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
-    files: ['**/*.{test,spec}.ts', '**/*.test-d.ts'],
+    files: ['**/*.{test,spec}.{ts,tsx}', '**/*.test-d.ts'],
     rules: {
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
