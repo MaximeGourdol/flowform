@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 import { createFormHooks } from './create-form-hooks.js';
 import { FormProvider } from './provider.js';
 import { useDevtools } from './use-devtools.js';
+import { Control } from './use-control.js';
 
 afterEach(cleanup);
 
@@ -436,6 +437,168 @@ describe('useDevtools', () => {
       ),
     ).toThrow(/devtoolsPlugin/);
     spy.mockRestore();
+  });
+});
+
+interface ListValues {
+  tags: { label: string }[];
+  title: string;
+}
+
+const listHooks = createFormHooks<ListValues>();
+
+const makeListForm = (): ReturnType<typeof createForm<ListValues>> =>
+  createForm<ListValues>({
+    initialValues: { tags: [{ label: 'a' }], title: '' },
+    steps: [{ id: 'main' }],
+  });
+
+describe('useFieldList', () => {
+  const Harness = (): ReactNode => {
+    const { items, append, removeAt, moveItem } =
+      listHooks.useFieldList('tags');
+    return (
+      <>
+        <span data-testid="labels">{items.map((t) => t.label).join(',')}</span>
+        <button
+          onClick={() => {
+            append({ label: 'z' });
+          }}
+        >
+          append
+        </button>
+        <button
+          onClick={() => {
+            removeAt(0);
+          }}
+        >
+          remove0
+        </button>
+        <button
+          onClick={() => {
+            moveItem(0, 1);
+          }}
+        >
+          move01
+        </button>
+      </>
+    );
+  };
+
+  it('reflects append/remove/move reactively', () => {
+    const form = makeListForm();
+    render(
+      <FormProvider form={form}>
+        <Harness />
+      </FormProvider>,
+    );
+    expect(screen.getByTestId('labels').textContent).toBe('a');
+    fireEvent.click(screen.getByText('append'));
+    expect(screen.getByTestId('labels').textContent).toBe('a,z');
+    fireEvent.click(screen.getByText('move01'));
+    expect(screen.getByTestId('labels').textContent).toBe('z,a');
+    fireEvent.click(screen.getByText('remove0'));
+    expect(screen.getByTestId('labels').textContent).toBe('a');
+  });
+});
+
+describe('useObserve', () => {
+  const Harness = (): ReactNode => {
+    const title = listHooks.useObserve('title');
+    const all = listHooks.useObserve();
+    return (
+      <>
+        <span data-testid="title">{title}</span>
+        <span data-testid="count">{all.tags.length}</span>
+      </>
+    );
+  };
+
+  it('reacts to a single path and to the whole form', () => {
+    const form = makeListForm();
+    render(
+      <FormProvider form={form}>
+        <Harness />
+      </FormProvider>,
+    );
+    expect(screen.getByTestId('title').textContent).toBe('');
+    act(() => {
+      form.store.setValue('title', 'Hello');
+      form.bus.emit('field:change', { path: 'title', value: 'Hello' });
+    });
+    expect(screen.getByTestId('title').textContent).toBe('Hello');
+  });
+});
+
+describe('useControl / Control', () => {
+  const Harness = (): ReactNode => (
+    <Control<ListValues, 'title'> name="title">
+      {(c) => (
+        <>
+          <span data-testid="v">{c.value}</span>
+          <button
+            onClick={() => {
+              c.onChange('X');
+            }}
+          >
+            set
+          </button>
+        </>
+      )}
+    </Control>
+  );
+
+  it('binds a custom control via onChange(value)', () => {
+    const form = makeListForm();
+    render(
+      <FormProvider form={form}>
+        <Harness />
+      </FormProvider>,
+    );
+    expect(screen.getByTestId('v').textContent).toBe('');
+    fireEvent.click(screen.getByText('set'));
+    expect(screen.getByTestId('v').textContent).toBe('X');
+    expect(form.store.getValue('title')).toBe('X');
+  });
+});
+
+describe('useForm derived meta + core delegation', () => {
+  const Harness = (): ReactNode => {
+    const { isValid, isDirty, submitCount, values } = listHooks.useForm();
+    return (
+      <>
+        <span data-testid="valid">{String(isValid)}</span>
+        <span data-testid="dirty">{String(isDirty)}</span>
+        <span data-testid="count">{submitCount}</span>
+        <span data-testid="title">{values.title}</span>
+      </>
+    );
+  };
+
+  it('exposes derived state that updates on submit', async () => {
+    const form = makeListForm();
+    const Wrapper = (): ReactNode => {
+      const { handleSubmit } = listHooks.useForm();
+      return (
+        <form
+          onSubmit={(e) => {
+            void handleSubmit(() => undefined)(e);
+          }}
+        >
+          <Harness />
+          <button type="submit">go</button>
+        </form>
+      );
+    };
+    render(
+      <FormProvider form={form}>
+        <Wrapper />
+      </FormProvider>,
+    );
+    expect(screen.getByTestId('count').textContent).toBe('0');
+    fireEvent.click(screen.getByText('go'));
+    await flush();
+    expect(screen.getByTestId('count').textContent).toBe('1');
   });
 });
 

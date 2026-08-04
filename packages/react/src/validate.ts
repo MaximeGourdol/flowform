@@ -41,28 +41,4 @@ export const runStepValidator = async <TValues>(
   });
 };
 
-export const runAllValidators = async <TValues>(
-  form: FormCore<TValues>,
-  stepIds: readonly string[],
-): Promise<ErrorMap> => {
-  const values = form.store.getState().values;
-  const merged: Record<string, readonly string[]> = {};
-  for (const stepId of stepIds) {
-    const step = form.steps.steps.find((candidate) => candidate.id === stepId);
-    if (step?.validate === undefined) {
-      continue;
-    }
-    const result = await step.validate(values, {
-      currentStepId: stepId,
-      trigger: 'submit',
-    });
-    for (const [key, messages] of Object.entries(result)) {
-      if (messages.length > 0) {
-        merged[key] = messages;
-      }
-    }
-  }
-  return merged;
-};
-
 export const errorMapHasErrors = hasErrors;

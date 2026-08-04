@@ -25,6 +25,14 @@ export {
 } from './use-field.js';
 export { useStep, type StepApi } from './use-step.js';
 export { useDevtools } from './use-devtools.js';
+export { useFieldList, type FieldListApi } from './use-field-list.js';
+export { useObserve } from './use-observe.js';
+export {
+  useControl,
+  Control,
+  type ControlApi,
+  type ControlProps,
+} from './use-control.js';
 export { useForm, type FormApi, type SubmitHandler } from './use-form.js';
 export { createFormHooks, type FormHooks } from './create-form-hooks.js';
 

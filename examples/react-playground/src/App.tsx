@@ -1,5 +1,5 @@
 import type { EventMap } from '@flowform/core';
-import { createFormHooks, FormProvider } from '@flowform/react';
+import { createFormHooks, FormProvider, useFormContext } from '@flowform/react';
 import {
   type CSSProperties,
   type ReactElement,
@@ -9,16 +9,11 @@ import {
 } from 'react';
 import { DevtoolsPanel } from './DevtoolsPanel';
 import { createSignupForm, type SignupValues } from './form';
-import {
-  useCoreActions,
-  useFieldArray,
-  useFieldStateProbe,
-  useFormMeta,
-} from './playgroundHooks';
 
 type Form = ReturnType<typeof createSignupForm>;
 
-const { useField, useStep } = createFormHooks<SignupValues>();
+const { useField, useStep, useForm, useFieldList } =
+  createFormHooks<SignupValues>();
 
 const stepProviders: Record<string, string> = {
   account: 'Zod',
@@ -115,9 +110,7 @@ const SkillRow = ({
 };
 
 const SkillsField = (): ReactElement => {
-  const { items, append, remove, move } = useFieldArray<{ name: string }>(
-    'skills',
-  );
+  const { items, append, removeAt, moveItem } = useFieldList('skills');
   return (
     <div style={styles.body}>
       <FieldError path="skills" />
@@ -126,13 +119,13 @@ const SkillsField = (): ReactElement => {
           key={i}
           index={i}
           onRemove={() => {
-            remove(i);
+            removeAt(i);
           }}
           onUp={() => {
-            move(i, Math.max(0, i - 1));
+            moveItem(i, Math.max(0, i - 1));
           }}
           onDown={() => {
-            move(i, Math.min(items.length - 1, i + 1));
+            moveItem(i, Math.min(items.length - 1, i + 1));
           }}
         />
       ))}
@@ -209,9 +202,11 @@ const StepBody = ({ step }: { step: string | null }): ReactElement => {
 };
 
 const FormMetaPanel = (): ReactElement => {
-  const meta = useFormMeta();
-  const probe = useFieldStateProbe();
-  const { trigger, resetField } = useCoreActions();
+  const meta = useForm();
+  const { trigger, resetField } = meta;
+  const { form } = useFormContext<SignupValues>();
+  const probe = (path: string): unknown =>
+    form.store.getFieldState(path as never);
   const [probePath, setProbePath] = useState('security.pin');
   const [probed, setProbed] = useState<string>('(none yet)');
 
@@ -299,9 +294,13 @@ const Wizard = (): ReactElement => {
     next,
     prev,
   } = useStep();
-  const meta = useFormMeta();
-  const { submit } = useCoreActions();
+  const meta = useForm();
+  const { handleSubmit } = meta;
   const [submitted, setSubmitted] = useState<SignupValues | null>(null);
+
+  const onSubmit = handleSubmit((valid) => {
+    setSubmitted(valid);
+  });
 
   return (
     <div style={styles.card}>
@@ -332,10 +331,7 @@ const Wizard = (): ReactElement => {
 
       <form
         onSubmit={(event) => {
-          event.preventDefault();
-          void submit((valid) => {
-            setSubmitted(valid);
-          });
+          void onSubmit(event);
         }}
       >
         <div style={styles.body}>
