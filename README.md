@@ -1,84 +1,71 @@
 # flowform
 
-Monorepo for a **headless TypeScript library for multi-step form management**.
+Headless multi-step form management for TypeScript. The engine has no runtime
+dependencies and knows nothing about any UI framework; bindings and validation
+adapters live in separate packages you add only if you need them.
 
-This README documents the **repository architecture and tooling** only — not the
-library's public API (that lives with each package once its source is written).
+```ts
+import { createForm } from '@flowform/core';
+import { toValidator } from '@flowform/adapter-core';
+import { z } from 'zod';
 
-## Layout
+const form = createForm({
+  initialValues: { email: '', password: '' },
+  steps: [
+    {
+      id: 'account',
+      validate: toValidator(z.object({ email: z.string().email() })),
+    },
+    { id: 'done' },
+  ],
+});
 
+await form.steps.goNext(); // validates the current step, then advances
+await form.submit(async (values) => {
+  await api.signup(values);
+});
 ```
-.
-├── packages/
-│   ├── core/        @flowform/core — headless engine (framework-agnostic)
-│   ├── react/       (reserved) React bindings — empty for now
-│   └── adapters/    (reserved) validation-schema adapters — empty for now
-├── .changeset/      Changesets config (versioning + changelogs)
-├── .github/workflows/ci.yml   CI: lint + typecheck + test
-├── .husky/          Git hooks (pre-commit)
-├── tsconfig.base.json         Shared strict TS config, extended by each package
-├── tsconfig.json              Root solution config (project references)
-├── eslint.config.js           Flat ESLint config (strict type-checked rules)
-├── vitest.config.ts           Vitest workspace (one project per package)
-├── pnpm-workspace.yaml        pnpm workspace definition
-└── package.json               Root scripts + shared devDependencies
+
+## Packages
+
+| Package                                                                   | What it is                                                                                                                                                 |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@flowform/core`](packages/core)                                         | The headless engine: store, step engine, event bus, submit lifecycle, plugin system                                                                        |
+| [`@flowform/react`](packages/react)                                       | React bindings — `FormProvider` plus `useField` / `useStep` / `useForm` / `useFieldList` / `useObserve` / `useControl`                                     |
+| [`@flowform/angular`](packages/angular)                                   | Angular bindings — `provideFlowForm`, a signals-based `FlowFormService`, and a `[flowField]` directive                                                     |
+| [`@flowform/adapter-core`](packages/adapter-core)                         | `toValidator(schema)` — turns a native schema (Zod, Yup, Joi, Ajv, class-validator, or any Standard Schema) into a validator, provider detected at runtime |
+| [`@flowform/plugin-steps-conditional`](packages/plugin-steps-conditional) | Show or hide steps from field values; clears a removed step's fields automatically                                                                         |
+| [`@flowform/plugin-devtools`](packages/plugin-devtools)                   | Collects a versioned event log and state snapshots from the bus                                                                                            |
+| [`@flowform/devtools-ui`](packages/devtools-ui)                           | A Shadow-DOM web component that renders the devtools timeline                                                                                              |
+
+Everything is framework-agnostic except the bindings. The same core drives
+React and Angular today; a Vue binding is the obvious next one.
+
+## Repository
+
+```text
+packages/           the published packages (table above)
+.changeset/         versioning + changelogs
+.github/workflows/  CI: build, lint, typecheck, test
 ```
 
-Only `packages/core` has source today. `react` and `adapters` are placeholders
-(`.gitkeep`) reserved for future packages.
+pnpm workspace, one Vitest project per package, tsup for dual ESM+CJS+`.d.ts`
+output. Shared strict TypeScript config in `tsconfig.base.json`
+(`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`).
 
-## Tooling
-
-| Concern         | Tool                                 |
-| --------------- | ------------------------------------ |
-| Package manager | pnpm (workspaces)                    |
-| Language        | TypeScript (strict, `tsconfig.base`) |
-| Build           | tsup — ESM + CJS + `.d.ts`           |
-| Tests           | Vitest (workspace mode, per package) |
-| Lint            | ESLint (flat config, type-checked)   |
-| Format          | Prettier                             |
-| Versioning      | Changesets                           |
-| Git hooks       | Husky + lint-staged                  |
-| CI              | GitHub Actions                       |
-
-### TypeScript
-
-`tsconfig.base.json` is the single source of strictness. Every package's
-`tsconfig.json` extends it and only sets its own `rootDir` / `outDir`. Key flags:
-`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`.
-
-## Root scripts
-
-Run from the repository root — each fans out across all packages.
-
-| Command          | Does                                           |
-| ---------------- | ---------------------------------------------- |
-| `pnpm build`     | Build every package (tsup → ESM + CJS + types) |
-| `pnpm test`      | Run all package test suites (Vitest workspace) |
-| `pnpm lint`      | Lint the whole repo (zero warnings tolerated)  |
-| `pnpm typecheck` | Type-check every package (`tsc --noEmit`)      |
-| `pnpm format`    | Format the repo with Prettier                  |
-| `pnpm changeset` | Record a version bump + changelog entry        |
-
-## Local workflow
+## Development
 
 ```bash
-pnpm install          # install workspace deps + set up git hooks
-pnpm build            # build all packages
-pnpm test             # run all tests
-pnpm lint             # lint
-pnpm typecheck        # type-check
+pnpm install
+pnpm build      # all packages (tsup) — run before lint/typecheck
+pnpm test       # Vitest, all packages
+pnpm typecheck
+pnpm lint
 ```
 
-`pre-commit` runs lint-staged (ESLint + Prettier on staged files), then
-`typecheck` and `test` — a commit is blocked if any of them fail.
-
-## Adding a package
-
-1. Create `packages/<name>/` with a `package.json` (`@flowform/<name>`).
-2. Add a `tsconfig.json` extending `../../tsconfig.base.json`.
-3. Add build (`tsup`) + `typecheck` scripts mirroring `packages/core`.
-4. It's automatically picked up by the pnpm workspace, Vitest, and the root scripts.
+Lint and typecheck resolve cross-package imports through each package's built
+`.d.ts`, so `pnpm build` has to run first. `pre-commit` runs lint-staged, then
+typecheck and test — a commit is blocked if any fail.
 
 ## License
 

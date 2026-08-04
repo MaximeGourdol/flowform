@@ -1,27 +1,139 @@
 # @flowform/core
 
-Headless engine for multi-step forms. Zero runtime dependencies, strict
-TypeScript. This document is the **reference for writing plugins** — internal
-or third-party — against the core's plugin contract.
+The headless engine for multi-step forms. Zero runtime dependencies, strict
+TypeScript, no knowledge of any UI framework. A form is a plain object you read,
+write, and subscribe to; bindings for React and validation adapters live in
+other packages.
 
-## The plugin contract
+## Install
 
-The core exposes three plugin primitives and nothing about any concrete plugin:
+```bash
+pnpm add @flowform/core
+```
+
+## Creating a form
 
 ```ts
-export interface FormPluginRegistry {}
+import { createForm } from '@flowform/core';
 
-export interface FormCore<TValues> extends FormPluginRegistry {
-  readonly store: FormStore<TValues>;
-  readonly bus: EventBus;
-  readonly steps: StepEngine<TValues>;
-  readonly use: <TApi>(
-    plugin: Plugin<TApi>,
-    options?: unknown,
-  ) => FormCore<TValues>;
-  readonly unuse: (name: string) => FormCore<TValues>;
+const form = createForm({
+  initialValues: { email: '', password: '' },
+  steps: [{ id: 'account' }, { id: 'review' }],
+});
+```
+
+`createForm` returns a `FormCore` with three pieces — `store`, `steps`, `bus` —
+plus a `submit` method and the plugin methods `use` / `unuse`.
+
+## Store
+
+Values, errors, touched state, and derived flags. Field access is by dot path,
+fully typed against your values.
+
+```ts
+form.store.getValue('email'); // typed as string
+form.store.setValue('email', 'a@b.co');
+
+const off = form.store.subscribe('email', (value) => render(value));
+off(); // unsubscribe
+
+form.store.subscribeAll(() => rerender()); // any change to any field
+
+const state = form.store.getState();
+// { values, errors, touched, dirty, isSubmitting, isValidating,
+//   isDirty, isValid, submitCount, dirtyFields, touchedFields }
+```
+
+Errors are keyed by path; an empty message array means valid.
+
+```ts
+form.store.setError('email', ['Required']);
+form.store.clearErrors('email'); // omit the path to clear everything
+form.store.getFieldState('email'); // { error, errors, isDirty, isTouched }
+```
+
+Arrays have first-class helpers that keep indexed errors and touched state
+aligned with the element they belong to:
+
+```ts
+form.store.arrayAppend('tags', { label: '' });
+form.store.arrayInsert('tags', 1, { label: '' });
+form.store.arrayRemove('tags', 0); // errors on tags.1.* shift down to tags.0.*
+form.store.arrayMove('tags', 0, 2);
+form.store.arraySwap('tags', 0, 1);
+```
+
+`reset(partial?)` deep-merges over the initial values; `resetField(path)`
+restores one field.
+
+## Steps
+
+The step engine tracks the current step and validates on the way forward.
+
+```ts
+form.steps.currentStep(); // 'account' | null
+await form.steps.goNext(); // validates the current step; advances only if valid
+form.steps.goPrev();
+form.steps.goTo('review');
+```
+
+A step may declare a validator and the fields it owns:
+
+```ts
+{
+  id: 'account',
+  validate: (values) => (values.email ? {} : { email: ['Required'] }),
+  fields: ['email', 'password'],
 }
+```
 
+`trigger` runs validation on demand and writes the result into the store
+(unlike `goNext`, which discards errors when it decides not to move):
+
+```ts
+await form.steps.trigger('current'); // the current step
+await form.steps.trigger('email'); // one field
+await form.steps.trigger('all'); // every active step
+```
+
+`goNext` / `goPrev` walk the raw step list. When steps can be conditionally
+hidden, use the active-aware variants, which the conditional-steps plugin feeds:
+
+```ts
+form.steps.activeStepIds();
+await form.steps.goNextActive();
+form.steps.goPrevActive();
+```
+
+## Submit
+
+`submit` runs the full lifecycle: it bumps `submitCount`, sets `isSubmitting`,
+validates every active step, calls your handler only when everything passes,
+and emits `submit:start` / `submit:end`.
+
+```ts
+const result = await form.submit(async (values) => {
+  await api.signup(values);
+});
+// result: { ok: boolean; values; errors }
+```
+
+## Event bus
+
+A typed pub/sub the engine and plugins publish to.
+
+```ts
+const off = form.bus.on('step:change', ({ from, to }) => {});
+```
+
+Events: `field:change`, `field:blur`, `step:change`, `validate:start`,
+`validate:end`, `submit:start`, `submit:end`.
+
+## Plugins
+
+The core exposes a small plugin contract and nothing about any concrete plugin.
+
+```ts
 export interface Plugin<TApi = unknown> {
   readonly name: string;
   readonly install: (core: FormCore<any>, options?: unknown) => TApi;
@@ -29,18 +141,19 @@ export interface Plugin<TApi = unknown> {
 }
 ```
 
-A plugin is a factory returning a `Plugin<TApi>`. `install` receives the live
-core (store, bus, steps), wires itself up, and returns its public API. That API
-is attached to the core under `core[plugin.name]`.
+`install` receives the live core, wires itself to the store or bus, and returns
+its public API. That API is attached under `core[plugin.name]`:
 
-## `FormPluginRegistry` — the type extension point
+```ts
+form.use(plugin, options); // throws if the name is already registered; chainable
+form.unuse('name'); // calls uninstall, removes the key
+```
 
-`FormPluginRegistry` is an **empty, augmentable interface**. `FormCore` extends
-it, so any key added to the registry becomes a typed property on every form.
+### Typed access via `FormPluginRegistry`
 
-The core never adds keys to it. A plugin adds its own key from **its own
-package** via `declare module`, so the core stays unaware of every plugin at
-both compile time and runtime:
+`FormPluginRegistry` is an empty, augmentable interface that `FormCore` extends.
+A plugin adds its own key from its own package, so the core stays unaware of
+every plugin at compile time and runtime:
 
 ```ts
 declare module '@flowform/core' {
@@ -50,33 +163,19 @@ declare module '@flowform/core' {
 }
 ```
 
-Importing the plugin's module pulls in this augmentation, and `form.analytics`
-becomes fully typed and auto-completed — with no change to `@flowform/core`.
+Importing the plugin pulls in the augmentation, and `form.analytics` becomes
+typed with no change to `@flowform/core`.
 
-## Lifecycle
+### Writing a plugin
 
-- `form.use(plugin, options?)` — throws if `plugin.name` is already registered,
-  calls `install(core, options)`, exposes the returned API under
-  `core[plugin.name]`, returns the core (chainable).
-- `form.unuse(name)` — calls `uninstall?(core)`, removes the API key, no-op for
-  an unknown name.
-
-## Example: a fictional third-party plugin
-
-`@acme/flowform-plugin-analytics` — reports step changes to an analytics sink.
-Note it never imports another plugin and only touches the core through the
-event bus.
+A plugin is a factory returning a `Plugin<TApi>`. It touches the core only
+through `store` and `bus`, never another plugin directly.
 
 ```ts
 import type { Plugin } from '@flowform/core';
 
 export interface AnalyticsApi {
   track: (event: string) => void;
-  flush: () => Promise<void>;
-}
-
-export interface AnalyticsOptions {
-  readonly sink: (event: string) => void;
 }
 
 declare module '@flowform/core' {
@@ -85,56 +184,27 @@ declare module '@flowform/core' {
   }
 }
 
-export const analytics = (options: AnalyticsOptions): Plugin<AnalyticsApi> => ({
-  name: 'analytics',
-  install: (core) => {
-    const queue: string[] = [];
-    const track = (event: string): void => {
-      queue.push(event);
-      options.sink(event);
-    };
-
-    const offStep = core.bus.on('step:change', (payload) => {
-      track(`step:${payload.to}`);
-    });
-
-    return {
-      track,
-      flush: async () => {
-        offStep();
-        queue.length = 0;
-        await Promise.resolve();
-      },
-    };
-  },
-});
+export const analytics = (sink: (e: string) => void): Plugin<AnalyticsApi> => {
+  let off: (() => void) | undefined;
+  return {
+    name: 'analytics',
+    install: (core) => {
+      off = core.bus.on('step:change', (p) => sink(`step:${p.to}`));
+      return { track: sink };
+    },
+    uninstall: () => off?.(),
+  };
+};
 ```
 
-Usage in a consuming app:
+Conventions for plugin packages:
 
-```ts
-import { createForm } from '@flowform/core';
-import { analytics } from '@acme/flowform-plugin-analytics';
+- Augment `FormPluginRegistry` from the plugin package, never from the core.
+- Export both the API type (`XxxApi`) and the factory (`xxx()`).
+- Registry keys are `camelCase`, matching the property they expose.
+- Declare `@flowform/core` as a `peerDependency`.
+- No plugin-to-plugin imports; communicate over the bus.
 
-const form = createForm({ initialValues: { email: '' } }).use(
-  analytics({ sink: (e) => console.log(e) }),
-);
+## License
 
-form.analytics.track('opened'); // typed via the registry augmentation
-```
-
-## Rules for plugin packages
-
-1. **Never modify `FormPluginRegistry` inside `@flowform/core`.** Augment it via
-   `declare module` from the plugin package only.
-2. **No `any` in a plugin's public API.** The single tolerated `any` is
-   `FormCore<any>` in the `install`/`uninstall` signature (covariance).
-3. **Export both the API type (`XxxApi`) and the factory (`xxx()`).**
-4. **No plugin-to-plugin imports.** Cross-plugin communication goes through the
-   event bus (`core.on('other-plugin:event', …)`) or explicit user-provided
-   options.
-5. **Registry keys are `camelCase`**, matching the property they expose
-   (`form.analytics`, not `form.AnalyticsPlugin`).
-6. Declare `@flowform/core` as a **`peerDependency`**, never a direct dependency.
-7. Ship a **type test** (`*.test-d.ts`) asserting `form.<key>` is inferred and
-   that unknown members are rejected (`@ts-expect-error`).
+MIT
