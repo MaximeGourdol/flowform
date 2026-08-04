@@ -21,9 +21,6 @@ export const readActiveSteps = (form: StepsLike): readonly string[] => {
   return form.steps.steps.map((step) => step.id);
 };
 
-const hasErrors = (errors: ErrorMap): boolean =>
-  Object.values(errors).some((messages) => messages.length > 0);
-
 export const runStepValidator = async <TValues>(
   form: FormCore<TValues>,
   stepId: string | null,
@@ -40,5 +37,3 @@ export const runStepValidator = async <TValues>(
     trigger: 'step',
   });
 };
-
-export const errorMapHasErrors = hasErrors;

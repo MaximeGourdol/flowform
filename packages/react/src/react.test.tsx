@@ -502,6 +502,77 @@ describe('useFieldList', () => {
   });
 });
 
+describe('useFieldList — error reindexing surfaces in the UI', () => {
+  const tagsRequired: Validator<ListValues> = (v) => {
+    const out: Record<string, readonly string[]> = {};
+    v.tags.forEach((t, i) => {
+      if (t.label === '') {
+        out[`tags.${String(i)}.label`] = ['Required'];
+      }
+    });
+    return out;
+  };
+
+  const makeValidatedListForm = (): ReturnType<typeof createForm<ListValues>> =>
+    createForm<ListValues>({
+      initialValues: {
+        tags: [{ label: 'keep' }, { label: '' }],
+        title: '',
+      },
+      steps: [{ id: 'main', validate: tagsRequired }],
+    });
+
+  const TagError = ({ index }: { index: number }): ReactNode => {
+    const field = listHooks.useField(`tags.${String(index)}.label`);
+    return (
+      <span data-testid={`err-${String(index)}`}>{field.error ?? ''}</span>
+    );
+  };
+
+  const Harness = (): ReactNode => {
+    const { items, removeAt } = listHooks.useFieldList('tags');
+    const { trigger } = listHooks.useForm();
+    return (
+      <>
+        {items.map((_, i) => (
+          <TagError key={i} index={i} />
+        ))}
+        <button
+          onClick={() => {
+            void trigger('all');
+          }}
+        >
+          validate
+        </button>
+        <button
+          onClick={() => {
+            removeAt(0);
+          }}
+        >
+          remove0
+        </button>
+      </>
+    );
+  };
+
+  it('moves the error to the surviving element after a remove', async () => {
+    const form = makeValidatedListForm();
+    render(
+      <FormProvider form={form}>
+        <Harness />
+      </FormProvider>,
+    );
+    fireEvent.click(screen.getByText('validate'));
+    await flush();
+    expect(screen.getByTestId('err-0').textContent).toBe('');
+    expect(screen.getByTestId('err-1').textContent).toBe('Required');
+
+    fireEvent.click(screen.getByText('remove0'));
+    await flush();
+    expect(screen.getByTestId('err-0').textContent).toBe('Required');
+  });
+});
+
 describe('useObserve', () => {
   const Harness = (): ReactNode => {
     const title = listHooks.useObserve('title');
@@ -559,6 +630,63 @@ describe('useControl / Control', () => {
     fireEvent.click(screen.getByText('set'));
     expect(screen.getByTestId('v').textContent).toBe('X');
     expect(form.store.getValue('title')).toBe('X');
+  });
+
+  const ControlProbe = (): ReactNode => {
+    const c = listHooks.useControl('title');
+    return (
+      <>
+        <span data-testid="touched">{String(c.touched)}</span>
+        <span data-testid="err">{c.error ?? ''}</span>
+        <button onClick={c.onBlur}>blur</button>
+      </>
+    );
+  };
+
+  it('marks touched via onBlur and surfaces a reactive error', () => {
+    const form = makeListForm();
+    render(
+      <FormProvider form={form}>
+        <ControlProbe />
+      </FormProvider>,
+    );
+    expect(screen.getByTestId('touched').textContent).toBe('false');
+    fireEvent.click(screen.getByText('blur'));
+    expect(screen.getByTestId('touched').textContent).toBe('true');
+
+    expect(screen.getByTestId('err').textContent).toBe('');
+    act(() => {
+      form.store.setError('title', ['Bad title']);
+    });
+    expect(screen.getByTestId('err').textContent).toBe('Bad title');
+  });
+
+  const NumberControl = (): ReactNode => {
+    const c = listHooks.useControl('tags');
+    return (
+      <>
+        <span data-testid="len">{c.value.length}</span>
+        <button
+          onClick={() => {
+            c.onChange([{ label: 'a' }, { label: 'b' }]);
+          }}
+        >
+          set2
+        </button>
+      </>
+    );
+  };
+
+  it('supports a non-string (object array) value', () => {
+    const form = makeListForm();
+    render(
+      <FormProvider form={form}>
+        <NumberControl />
+      </FormProvider>,
+    );
+    expect(screen.getByTestId('len').textContent).toBe('1');
+    fireEvent.click(screen.getByText('set2'));
+    expect(screen.getByTestId('len').textContent).toBe('2');
   });
 });
 

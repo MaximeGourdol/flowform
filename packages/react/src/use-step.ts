@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { useFormContext } from './context.js';
-import {
-  errorMapHasErrors,
-  readActiveSteps,
-  runStepValidator,
-} from './validate.js';
+import { readActiveSteps } from './validate.js';
 
 export interface StepApi {
   readonly currentStep: string | null;
@@ -41,27 +37,21 @@ export const useStep = (): StepApi => {
   );
 
   const next = useCallback(async (): Promise<boolean> => {
-    const errors = await runStepValidator(form, currentStep);
-    form.store.setErrors(errors);
+    const ok = await form.steps.trigger('current');
     sync.notify();
-    if (errorMapHasErrors(errors)) {
+    if (!ok) {
       return false;
     }
-    const nextId = activeSteps[index + 1];
-    if (nextId === undefined) {
-      return false;
-    }
-    return form.steps.goTo(nextId);
-  }, [form, sync, currentStep, activeSteps, index]);
+    const moved = await form.steps.goNextActive();
+    sync.notify();
+    return moved;
+  }, [form, sync]);
 
   const prev = useCallback((): void => {
-    form.store.setErrors({});
+    form.store.clearErrors();
+    form.steps.goPrevActive();
     sync.notify();
-    const prevId = activeSteps[index - 1];
-    if (prevId !== undefined) {
-      form.steps.goTo(prevId);
-    }
-  }, [form, sync, activeSteps, index]);
+  }, [form, sync]);
 
   useEffect(() => {
     const reconcile = (): void => {

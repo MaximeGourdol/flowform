@@ -60,7 +60,7 @@ export const createSyncStore = <TValues>(
   };
 
   const offHandlers: Unsubscribe[] = [
-    form.bus.on('field:change', recompute),
+    form.store.subscribeAll(recompute),
     form.bus.on('step:change', recompute),
     form.bus.on('validate:end', recompute),
     form.bus.on('submit:start', recompute),
