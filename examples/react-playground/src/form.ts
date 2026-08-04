@@ -17,6 +17,7 @@ import { z } from 'zod';
 export interface SignupValues {
   account: { email: string; password: string };
   profile: { displayName: string };
+  skills: { name: string }[];
   security: { pin: string };
   needsShipping: boolean;
   shipping: { address: string; zip: string };
@@ -84,6 +85,19 @@ const consentValidateFn = ajv.compile({
   required: ['acceptedTos'],
 });
 
+const skillsRequired: Validator<SignupValues> = (values) => {
+  const out: Record<string, readonly string[]> = {};
+  if (values.skills.length === 0) {
+    out.skills = ['Add at least one skill'];
+  }
+  values.skills.forEach((skill, i) => {
+    if (skill.name.trim() === '') {
+      out[`skills.${String(i)}.name`] = ['Skill name is required'];
+    }
+  });
+  return out;
+};
+
 const termsRequired: Validator<SignupValues> = (values) =>
   values.terms.accepted
     ? {}
@@ -92,6 +106,7 @@ const termsRequired: Validator<SignupValues> = (values) =>
 export const signupSteps: readonly Step<SignupValues>[] = [
   { id: 'account', validate: asStepValidator(toValidator(accountSchema)) },
   { id: 'profile', validate: asStepValidator(toValidator(profileSchema)) },
+  { id: 'skills', validate: skillsRequired },
   {
     id: 'security',
     validate: sliced(
@@ -117,6 +132,7 @@ export const createSignupForm = (): FormCore<SignupValues> =>
     initialValues: {
       account: { email: '', password: '' },
       profile: { displayName: '' },
+      skills: [{ name: '' }],
       security: { pin: '' },
       needsShipping: false,
       shipping: { address: '', zip: '' },

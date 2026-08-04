@@ -65,9 +65,14 @@ export const stepsConditionalPlugin = <TValues>(
         sync();
       });
 
+      typed.steps.setActiveStepResolver(activeStepIds);
+
       sync();
 
       return { activeStepIds, isActive, sync };
+    },
+    uninstall: (core) => {
+      (core as FormCore<TValues>).steps.setActiveStepResolver(null);
     },
   };
 };

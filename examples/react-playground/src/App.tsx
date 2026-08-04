@@ -9,14 +9,21 @@ import {
 } from 'react';
 import { DevtoolsPanel } from './DevtoolsPanel';
 import { createSignupForm, type SignupValues } from './form';
+import {
+  useCoreActions,
+  useFieldArray,
+  useFieldStateProbe,
+  useFormMeta,
+} from './playgroundHooks';
 
 type Form = ReturnType<typeof createSignupForm>;
 
-const { useField, useStep, useForm } = createFormHooks<SignupValues>();
+const { useField, useStep } = createFormHooks<SignupValues>();
 
 const stepProviders: Record<string, string> = {
   account: 'Zod',
   profile: 'Yup',
+  skills: 'field-array',
   security: 'class-validator',
   shipping: 'Joi',
   consent: 'Ajv',
@@ -73,6 +80,75 @@ const CheckboxField = ({
   );
 };
 
+const SkillRow = ({
+  index,
+  onRemove,
+  onUp,
+  onDown,
+}: {
+  index: number;
+  onRemove: () => void;
+  onUp: () => void;
+  onDown: () => void;
+}): ReactElement => {
+  const path = `skills.${String(index)}.name` as const;
+  const { register } = useField(path);
+  return (
+    <div style={styles.skillRow}>
+      <input
+        style={{ ...styles.input, flex: 1 }}
+        placeholder={`Skill #${String(index + 1)}`}
+        {...register()}
+      />
+      <button type="button" style={styles.iconButton} onClick={onUp}>
+        ↑
+      </button>
+      <button type="button" style={styles.iconButton} onClick={onDown}>
+        ↓
+      </button>
+      <button type="button" style={styles.iconButton} onClick={onRemove}>
+        ✕
+      </button>
+      <FieldError path={path} />
+    </div>
+  );
+};
+
+const SkillsField = (): ReactElement => {
+  const { items, append, remove, move } = useFieldArray<{ name: string }>(
+    'skills',
+  );
+  return (
+    <div style={styles.body}>
+      <FieldError path="skills" />
+      {items.map((_, i) => (
+        <SkillRow
+          key={i}
+          index={i}
+          onRemove={() => {
+            remove(i);
+          }}
+          onUp={() => {
+            move(i, Math.max(0, i - 1));
+          }}
+          onDown={() => {
+            move(i, Math.min(items.length - 1, i + 1));
+          }}
+        />
+      ))}
+      <button
+        type="button"
+        style={styles.button}
+        onClick={() => {
+          append({ name: '' });
+        }}
+      >
+        + Add skill
+      </button>
+    </div>
+  );
+};
+
 const StepBody = ({ step }: { step: string | null }): ReactElement => {
   if (step === 'account') {
     return (
@@ -92,6 +168,9 @@ const StepBody = ({ step }: { step: string | null }): ReactElement => {
         />
       </>
     );
+  }
+  if (step === 'skills') {
+    return <SkillsField />;
   }
   if (step === 'security') {
     return (
@@ -129,6 +208,86 @@ const StepBody = ({ step }: { step: string | null }): ReactElement => {
   return <p>Done.</p>;
 };
 
+const FormMetaPanel = (): ReactElement => {
+  const meta = useFormMeta();
+  const probe = useFieldStateProbe();
+  const { trigger, resetField } = useCoreActions();
+  const [probePath, setProbePath] = useState('security.pin');
+  const [probed, setProbed] = useState<string>('(none yet)');
+
+  return (
+    <div style={styles.card}>
+      <h2 style={styles.title}>Core formState (derived)</h2>
+      <pre style={styles.pre}>
+        {JSON.stringify(
+          {
+            isValid: meta.isValid,
+            isDirty: meta.isDirty,
+            isSubmitting: meta.isSubmitting,
+            isValidating: meta.isValidating,
+            submitCount: meta.submitCount,
+            dirtyFields: Object.keys(meta.dirtyFields),
+            touchedFields: Object.keys(meta.touchedFields),
+            errors: Object.keys(meta.errors),
+          },
+          null,
+          2,
+        )}
+      </pre>
+
+      <h2 style={styles.title}>getFieldState / resetField / trigger</h2>
+      <div style={styles.actions}>
+        <input
+          style={{ ...styles.input, flex: 1 }}
+          value={probePath}
+          onChange={(e) => {
+            setProbePath(e.target.value);
+          }}
+        />
+        <button
+          type="button"
+          style={styles.button}
+          onClick={() => {
+            setProbed(JSON.stringify(probe(probePath)));
+          }}
+        >
+          getFieldState
+        </button>
+      </div>
+      <pre style={styles.pre}>{probed}</pre>
+      <div style={styles.actions}>
+        <button
+          type="button"
+          style={styles.button}
+          onClick={() => {
+            resetField(probePath);
+          }}
+        >
+          resetField
+        </button>
+        <button
+          type="button"
+          style={styles.button}
+          onClick={() => {
+            void trigger('current');
+          }}
+        >
+          trigger(current)
+        </button>
+        <button
+          type="button"
+          style={styles.button}
+          onClick={() => {
+            void trigger('all');
+          }}
+        >
+          trigger(all)
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Wizard = (): ReactElement => {
   const {
     currentStep: step,
@@ -140,18 +299,15 @@ const Wizard = (): ReactElement => {
     next,
     prev,
   } = useStep();
-  const { values, isSubmitting, handleSubmit } = useForm();
+  const meta = useFormMeta();
+  const { submit } = useCoreActions();
   const [submitted, setSubmitted] = useState<SignupValues | null>(null);
-
-  const onSubmit = handleSubmit((valid) => {
-    setSubmitted(valid);
-  });
 
   return (
     <div style={styles.card}>
-      <h1 style={styles.title}>@flowform/react</h1>
+      <h1 style={styles.title}>@flowform/react + core</h1>
       <p style={styles.subtitle}>
-        Provider + hooks — same headless core, zero manual store glue.
+        Field array, core.submit, derived formState, trigger/resetField.
       </p>
 
       <div style={styles.progress}>
@@ -176,7 +332,10 @@ const Wizard = (): ReactElement => {
 
       <form
         onSubmit={(event) => {
-          void onSubmit(event);
+          event.preventDefault();
+          void submit((valid) => {
+            setSubmitted(valid);
+          });
         }}
       >
         <div style={styles.body}>
@@ -196,9 +355,9 @@ const Wizard = (): ReactElement => {
             <button
               type="submit"
               style={{ ...styles.button, ...styles.primary }}
-              disabled={isSubmitting}
+              disabled={meta.isSubmitting}
             >
-              {isSubmitting ? 'Submitting…' : 'Submit'}
+              {meta.isSubmitting ? 'Submitting…' : 'Submit'}
             </button>
           ) : (
             <button
@@ -217,12 +376,13 @@ const Wizard = (): ReactElement => {
 
       {submitted !== null && (
         <p style={styles.success}>
-          Submitted ✓ — {String(submitted.account.email || '(no email)')}
+          Submitted ✓ — {String(submitted.account.email || '(no email)')} ·{' '}
+          {String(submitted.skills.length)} skill(s)
         </p>
       )}
 
       <h2 style={styles.title}>Live form values</h2>
-      <pre style={styles.pre}>{JSON.stringify(values, null, 2)}</pre>
+      <pre style={styles.pre}>{JSON.stringify(meta.values, null, 2)}</pre>
     </div>
   );
 };
@@ -256,12 +416,16 @@ const App = (): ReactElement => {
       <FormProvider form={form} mode="onChange" reValidateMode="onChange">
         <Wizard />
 
-        <div style={styles.card}>
-          <h2 style={styles.title}>Event bus log</h2>
-          <pre style={styles.pre}>{log.join('\n') || '(no events yet)'}</pre>
+        <div>
+          <FormMetaPanel />
 
-          <h2 style={styles.title}>Devtools timeline (web component)</h2>
-          <DevtoolsPanel />
+          <div style={styles.card}>
+            <h2 style={styles.title}>Event bus log</h2>
+            <pre style={styles.pre}>{log.join('\n') || '(no events yet)'}</pre>
+
+            <h2 style={styles.title}>Devtools timeline (web component)</h2>
+            <DevtoolsPanel />
+          </div>
         </div>
       </FormProvider>
     </div>
@@ -307,6 +471,15 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 14,
   },
   checkbox: { display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 },
+  skillRow: { display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' },
+  iconButton: {
+    padding: '6px 10px',
+    borderRadius: 8,
+    border: '1px solid #cbd5e1',
+    background: '#fff',
+    cursor: 'pointer',
+    fontSize: 13,
+  },
   error: { color: '#dc2626', fontSize: 13, margin: '4px 0 0' },
   success: { color: '#166534', fontSize: 14, margin: '12px 0 0' },
   actions: { display: 'flex', gap: 8, marginTop: 20 },

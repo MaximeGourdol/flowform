@@ -2,11 +2,21 @@ import { createEventBus, type EventBus } from './event-bus.js';
 import type { FormPluginRegistry, Plugin } from './plugin.js';
 import { createStepEngine, type Step, type StepEngine } from './step-engine.js';
 import { createStore, type FormStore } from './store.js';
+import type { ErrorMap } from './types.js';
+
+export interface SubmitResult<TValues> {
+  readonly ok: boolean;
+  readonly values: TValues;
+  readonly errors: ErrorMap;
+}
 
 export interface FormCore<TValues> extends FormPluginRegistry {
   readonly store: FormStore<TValues>;
   readonly bus: EventBus;
   readonly steps: StepEngine<TValues>;
+  readonly submit: (
+    onValid?: (values: TValues) => void | Promise<void>,
+  ) => Promise<SubmitResult<TValues>>;
   readonly use: <TApi>(
     plugin: Plugin<TApi>,
     options?: unknown,
@@ -18,6 +28,7 @@ export interface CreateFormOptions<TValues> {
   readonly initialValues: TValues;
   readonly steps?: readonly Step<TValues>[];
   readonly initialStepId?: string;
+  readonly getActiveStepIds?: () => readonly string[];
 }
 
 type MutableRecord = Record<string, unknown>;
@@ -32,9 +43,30 @@ export const createForm = <TValues>(
     ...(options.initialStepId === undefined
       ? {}
       : { initialStepId: options.initialStepId }),
+    ...(options.getActiveStepIds === undefined
+      ? {}
+      : { getActiveStepIds: options.getActiveStepIds }),
     getValues: () => store.getState().values,
+    store,
     bus,
   });
+
+  const submit = async (
+    onValid?: (values: TValues) => void | Promise<void>,
+  ): Promise<SubmitResult<TValues>> => {
+    store.incrementSubmitCount();
+    store.setSubmitting(true);
+    bus.emit('submit:start', {});
+    const ok = await steps.trigger('all');
+    const errors: ErrorMap = store.getState().errors;
+    const values = store.getState().values;
+    if (ok && onValid !== undefined) {
+      await onValid(values);
+    }
+    bus.emit('submit:end', { errors, ok });
+    store.setSubmitting(false);
+    return { ok, values, errors };
+  };
 
   const installed = new Map<string, Plugin>();
 
@@ -66,6 +98,7 @@ export const createForm = <TValues>(
     store,
     bus,
     steps,
+    submit,
     use,
     unuse,
   } as unknown as FormCore<TValues>;
