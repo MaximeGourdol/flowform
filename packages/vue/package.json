@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Vue 3 bindings for @flowform/core — createVueForm + composables (useField/useStep/useForm) with v-model-ready refs",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/vue#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": false,
   "files": [

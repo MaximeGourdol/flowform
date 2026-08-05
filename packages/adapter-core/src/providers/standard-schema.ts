@@ -5,7 +5,10 @@ import { addIssue, normalizePath, type MutableErrorMap } from '../error-map.js';
 export const isStandardSchema = (
   schema: unknown,
 ): schema is StandardSchemaV1 => {
-  if (typeof schema !== 'object' || schema === null) {
+  if (
+    schema === null ||
+    (typeof schema !== 'object' && typeof schema !== 'function')
+  ) {
     return false;
   }
   const standard = (schema as Record<string, unknown>)['~standard'];

@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Conditional steps plugin for @flowform/core — activate/remove steps from field values and clear removed step fields automatically",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/plugin-steps-conditional"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/plugin-steps-conditional#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": false,
   "files": [

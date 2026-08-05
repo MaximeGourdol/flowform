@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "React bindings for @flowform/core — Provider + hooks (useField/useStep/useForm) that make headless multi-step forms clé en main",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/react#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": false,
   "files": [

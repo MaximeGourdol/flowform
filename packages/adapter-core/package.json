@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Universal validation adapter for @flowform/core — pass a native schema (Standard Schema / Zod / Valibot / ArkType / Yup) and get a typed Validator, provider detected at runtime",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/adapter-core"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/adapter-core#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -51,12 +58,14 @@
   "devDependencies": {
     "@flowform/core": "workspace:*",
     "ajv": "^8.17.1",
+    "arktype": "^2.2.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "joi": "^17.13.3",
     "reflect-metadata": "^0.2.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
+    "valibot": "^1.4.2",
     "vitest": "^3.0.2",
     "yup": "^1.6.1",
     "zod": "^3.24.1"

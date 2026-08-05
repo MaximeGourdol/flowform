@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Headless engine for multi-step form management",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/core#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": false,
   "files": [

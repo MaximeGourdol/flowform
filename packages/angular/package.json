@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Angular bindings for @flowform/core — provideFlowForm + a FlowForm service, signals, and a [flowField] directive for headless multi-step forms",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/angular"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/angular#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": false,
   "files": [

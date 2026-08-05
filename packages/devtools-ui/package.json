@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Web component overlay for @flowform/plugin-devtools — Shadow DOM event timeline, zero UI-framework dependency",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "directory": "packages/devtools-ui"
+  },
+  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/devtools-ui#readme",
+  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
   "type": "module",
   "sideEffects": [
     "./dist/register.js",
