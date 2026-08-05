@@ -33,13 +33,14 @@ await form.submit(async (values) => {
 | [`@flowform/core`](packages/core)                                         | The headless engine: store, step engine, event bus, submit lifecycle, plugin system                                                                        |
 | [`@flowform/react`](packages/react)                                       | React bindings — `FormProvider` plus `useField` / `useStep` / `useForm` / `useFieldList` / `useObserve` / `useControl`                                     |
 | [`@flowform/angular`](packages/angular)                                   | Angular bindings — `provideFlowForm`, a signals-based `FlowFormService`, and a `[flowField]` directive                                                     |
+| [`@flowform/vue`](packages/vue)                                           | Vue 3 bindings — `provideFlowForm` plus composables (`useField` for `v-model`, `useStep`, `useForm`, `useFieldList`, `useObserve`)                         |
 | [`@flowform/adapter-core`](packages/adapter-core)                         | `toValidator(schema)` — turns a native schema (Zod, Yup, Joi, Ajv, class-validator, or any Standard Schema) into a validator, provider detected at runtime |
 | [`@flowform/plugin-steps-conditional`](packages/plugin-steps-conditional) | Show or hide steps from field values; clears a removed step's fields automatically                                                                         |
 | [`@flowform/plugin-devtools`](packages/plugin-devtools)                   | Collects a versioned event log and state snapshots from the bus                                                                                            |
 | [`@flowform/devtools-ui`](packages/devtools-ui)                           | A Shadow-DOM web component that renders the devtools timeline                                                                                              |
 
-Everything is framework-agnostic except the bindings. The same core drives
-React and Angular today; a Vue binding is the obvious next one.
+Everything is framework-agnostic except the bindings. The same core drives the
+React, Angular, and Vue bindings.
 
 ## Repository
 

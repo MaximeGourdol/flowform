@@ -182,11 +182,11 @@ export class FlowFormService<TValues = unknown> implements OnDestroy {
     return moved;
   }
 
-  items<P extends Path<TValues>>(path: P): Signal<readonly unknown[]> {
-    return computed(() => {
+  items(path: Path<TValues>): Signal<readonly unknown[]> {
+    return computed((): readonly unknown[] => {
       this.stateSignal();
-      const value = this.core.store.getValue(path);
-      return Array.isArray(value) ? value : [];
+      const value: unknown = this.core.store.getValue(path);
+      return Array.isArray(value) ? (value as readonly unknown[]) : [];
     });
   }
 

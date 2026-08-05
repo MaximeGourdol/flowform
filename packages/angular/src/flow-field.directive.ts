@@ -1,4 +1,3 @@
-import type { Path } from '@flowform/core';
 import {
   Directive,
   effect,
@@ -22,11 +21,16 @@ export class FlowFieldDirective {
 
   constructor() {
     effect(() => {
-      const value = this.form.value(this.path as Path<unknown>)();
+      const value: unknown = this.form.value(this.path)();
       if (this.el.type === 'checkbox') {
         this.el.checked = Boolean(value);
       } else {
-        const next = value == null ? '' : String(value);
+        const next =
+          typeof value === 'string' ||
+          typeof value === 'number' ||
+          typeof value === 'boolean'
+            ? String(value)
+            : '';
         if (this.el.value !== next) {
           this.el.value = next;
         }
@@ -37,13 +41,13 @@ export class FlowFieldDirective {
   @HostListener('input')
   onInput(): void {
     const next = this.el.type === 'checkbox' ? this.el.checked : this.el.value;
-    this.form.setValue(this.path as Path<unknown>, next as never);
-    void this.form.revalidateField(this.path as Path<unknown>, 'change');
+    this.form.setValue(this.path, next);
+    void this.form.revalidateField(this.path, 'change');
   }
 
   @HostListener('blur')
   onBlur(): void {
-    this.form.markTouched(this.path as Path<unknown>);
-    void this.form.revalidateField(this.path as Path<unknown>, 'blur');
+    this.form.markTouched(this.path);
+    void this.form.revalidateField(this.path, 'blur');
   }
 }

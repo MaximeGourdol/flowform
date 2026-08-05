@@ -1,0 +1,44 @@
+{
+  "name": "@flowform/vue",
+  "version": "0.0.0",
+  "description": "Vue 3 bindings for @flowform/core — createVueForm + composables (useField/useStep/useForm) with v-model-ready refs",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "@flowform/core": "workspace:*",
+    "vue": ">=3.4"
+  },
+  "devDependencies": {
+    "@flowform/core": "workspace:*",
+    "@flowform/plugin-steps-conditional": "workspace:*",
+    "@vue/test-utils": "^2.4.11",
+    "jsdom": "^25.0.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2",
+    "vue": "^3.5.41"
+  }
+}

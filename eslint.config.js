@@ -10,7 +10,6 @@ export default tseslint.config(
       '**/coverage/**',
       '**/.turbo/**',
       '**/*.d.ts',
-      'packages/angular/**',
     ],
   },
   js.configs.recommended,
@@ -57,6 +56,15 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
+  {
+    files: ['packages/angular/**/*.ts'],
+    rules: {
+      'func-style': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
   prettier,
