@@ -1,6 +1,6 @@
 {
   "name": "@flowform/adapter-core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Universal validation adapter for @flowform/core — pass a native schema (Standard Schema / Zod / Valibot / ArkType / Yup) and get a typed Validator, provider detected at runtime",
   "license": "MIT",
   "repository": {

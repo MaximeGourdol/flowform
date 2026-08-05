@@ -1,6 +1,6 @@
 {
   "name": "@flowform/plugin-steps-conditional",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Conditional steps plugin for @flowform/core — activate/remove steps from field values and clear removed step fields automatically",
   "license": "MIT",
   "repository": {

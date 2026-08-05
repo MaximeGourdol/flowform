@@ -1,6 +1,6 @@
 {
   "name": "@flowform/angular",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Angular bindings for @flowform/core — provideFlowForm + a FlowForm service, signals, and a [flowField] directive for headless multi-step forms",
   "license": "MIT",
   "repository": {

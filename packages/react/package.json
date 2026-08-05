@@ -1,6 +1,6 @@
 {
   "name": "@flowform/react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "React bindings for @flowform/core — Provider + hooks (useField/useStep/useForm) that make headless multi-step forms clé en main",
   "license": "MIT",
   "repository": {

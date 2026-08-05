@@ -1,6 +1,6 @@
 {
   "name": "@flowform/vue",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Vue 3 bindings for @flowform/core — createVueForm + composables (useField/useStep/useForm) with v-model-ready refs",
   "license": "MIT",
   "repository": {
