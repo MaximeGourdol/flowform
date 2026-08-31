@@ -10,6 +10,9 @@
   },
   "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/devtools-ui#readme",
   "bugs": "https://github.com/MaximeGourdol/flowform/issues",
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "sideEffects": [
     "./dist/register.js",
