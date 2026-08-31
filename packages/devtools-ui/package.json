@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "url": "git+https://github.com/MaximeGourdol/formjourney.git",
     "directory": "packages/devtools-ui"
   },
-  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/devtools-ui#readme",
-  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
+  "homepage": "https://github.com/MaximeGourdol/formjourney/tree/main/packages/devtools-ui#readme",
+  "bugs": "https://github.com/MaximeGourdol/formjourney/issues",
   "engines": {
     "node": ">=20"
   },

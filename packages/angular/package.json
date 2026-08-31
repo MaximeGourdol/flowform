@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MaximeGourdol/flowform.git",
+    "url": "git+https://github.com/MaximeGourdol/formjourney.git",
     "directory": "packages/angular"
   },
-  "homepage": "https://github.com/MaximeGourdol/flowform/tree/main/packages/angular#readme",
-  "bugs": "https://github.com/MaximeGourdol/flowform/issues",
+  "homepage": "https://github.com/MaximeGourdol/formjourney/tree/main/packages/angular#readme",
+  "bugs": "https://github.com/MaximeGourdol/formjourney/issues",
   "engines": {
     "node": ">=20"
   },

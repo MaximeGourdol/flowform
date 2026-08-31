@@ -1,6 +1,6 @@
 # FormJourney
 
-[![CI](https://github.com/MaximeGourdol/flowform/actions/workflows/ci.yml/badge.svg)](https://github.com/MaximeGourdol/flowform/actions/workflows/ci.yml)
+[![CI](https://github.com/MaximeGourdol/formjourney/actions/workflows/ci.yml/badge.svg)](https://github.com/MaximeGourdol/formjourney/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![types](https://img.shields.io/npm/types/@formjourney/core.svg?logo=typescript&logoColor=white)](https://www.npmjs.com/package/@formjourney/core)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@formjourney/core.svg)](https://bundlephobia.com/package/@formjourney/core)
