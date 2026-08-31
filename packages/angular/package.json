@@ -35,7 +35,7 @@
   },
   "peerDependencies": {
     "@angular/core": ">=17",
-    "@flowform/core": "workspace:*",
+    "@flowform/core": "workspace:^",
     "rxjs": ">=7"
   },
   "devDependencies": {

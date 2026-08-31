@@ -36,7 +36,7 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@flowform/core": "workspace:*",
+    "@flowform/core": "workspace:^",
     "react": ">=18"
   },
   "devDependencies": {

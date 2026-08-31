@@ -44,7 +44,7 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@flowform/plugin-devtools": "workspace:*"
+    "@flowform/plugin-devtools": "workspace:^"
   },
   "devDependencies": {
     "@flowform/core": "workspace:*",
