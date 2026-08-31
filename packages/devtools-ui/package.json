@@ -16,7 +16,8 @@
     "./dist/register.cjs"
   ],
   "files": [
-    "dist"
+    "dist",
+    "LICENSE"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -46,7 +47,9 @@
     "@flowform/plugin-devtools": "workspace:*"
   },
   "devDependencies": {
+    "@flowform/core": "workspace:*",
     "@flowform/plugin-devtools": "workspace:*",
+    "jsdom": "^25.0.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
     "vitest": "^3.0.2"
