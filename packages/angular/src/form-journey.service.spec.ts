@@ -1,8 +1,8 @@
-import { createForm, type Validator } from '@flowform/core';
-import { stepsConditionalPlugin } from '@flowform/plugin-steps-conditional';
+import { createForm, type Validator } from '@formjourney/core';
+import { stepsConditionalPlugin } from '@formjourney/plugin-steps-conditional';
 import { describe, expect, it } from 'vitest';
-import { FlowFormService } from './flow-form.service';
-import type { FlowFormMode } from './tokens';
+import { FormJourneyService } from './form-journey.service';
+import type { FormJourneyMode } from './tokens';
 
 interface Values {
   email: string;
@@ -13,7 +13,7 @@ interface Values {
 const emailRequired: Validator<Values> = (v) =>
   v.email === '' ? { email: ['Required'] } : {};
 
-const makeService = (): FlowFormService<Values> => {
+const makeService = (): FormJourneyService<Values> => {
   const core = createForm<Values>({
     initialValues: { email: '', needsShipping: false, tags: [{ label: 'a' }] },
     steps: [
@@ -21,10 +21,10 @@ const makeService = (): FlowFormService<Values> => {
       { id: 'review' },
     ],
   });
-  return new FlowFormService<Values>(core);
+  return new FormJourneyService<Values>(core);
 };
 
-describe('FlowFormService — field signals', () => {
+describe('FormJourneyService — field signals', () => {
   it('value signal reflects setValue', () => {
     const ff = makeService();
     const email = ff.value('email');
@@ -60,7 +60,7 @@ describe('FlowFormService — field signals', () => {
   });
 });
 
-describe('FlowFormService — navigation', () => {
+describe('FormJourneyService — navigation', () => {
   it('next blocks on invalid, advances when valid', async () => {
     const ff = makeService();
     expect(ff.currentStep()).toBe('account');
@@ -72,7 +72,7 @@ describe('FlowFormService — navigation', () => {
   });
 });
 
-describe('FlowFormService — field list', () => {
+describe('FormJourneyService — field list', () => {
   it('append/remove/move update the items signal', () => {
     const ff = makeService();
     const items = ff.items('tags');
@@ -89,7 +89,7 @@ describe('FlowFormService — field list', () => {
   });
 });
 
-describe('FlowFormService — submit', () => {
+describe('FormJourneyService — submit', () => {
   it('calls onValid only when valid', async () => {
     const ff = makeService();
     let called = 0;
@@ -106,15 +106,17 @@ describe('FlowFormService — submit', () => {
   });
 });
 
-const makeModedService = (mode: FlowFormMode): FlowFormService<Values> => {
+const makeModedService = (
+  mode: FormJourneyMode,
+): FormJourneyService<Values> => {
   const core = createForm<Values>({
     initialValues: { email: '', needsShipping: false, tags: [] },
     steps: [{ id: 'account', validate: emailRequired, fields: ['email'] }],
   });
-  return new FlowFormService<Values>(core, mode);
+  return new FormJourneyService<Values>(core, mode);
 };
 
-describe('FlowFormService — validation modes', () => {
+describe('FormJourneyService — validation modes', () => {
   it('mode onSubmit + reValidate onChange: no error while typing, clears once invalid', async () => {
     const ff = makeModedService({
       mode: 'onSubmit',
@@ -168,7 +170,7 @@ describe('FlowFormService — validation modes', () => {
   });
 });
 
-describe('FlowFormService — conditional steps', () => {
+describe('FormJourneyService — conditional steps', () => {
   it('activeSteps reflects the conditional plugin', () => {
     const core = createForm<Values>({
       initialValues: {
@@ -188,7 +190,7 @@ describe('FlowFormService — conditional steps', () => {
         ],
       }),
     );
-    const ff = new FlowFormService<Values>(core);
+    const ff = new FormJourneyService<Values>(core);
     expect(ff.activeSteps()).toEqual(['account', 'review']);
     ff.setValue('needsShipping', true);
     expect(ff.activeSteps()).toEqual(['account', 'shipping', 'review']);

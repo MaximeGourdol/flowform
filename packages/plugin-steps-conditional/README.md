@@ -1,20 +1,20 @@
-# @flowform/plugin-steps-conditional
+# @formjourney/plugin-steps-conditional
 
-A [`@flowform/core`](../core) plugin that shows or hides steps based on field
+A [`@formjourney/core`](../core) plugin that shows or hides steps based on field
 values. When a step becomes inactive, its fields are cleared automatically, and
 navigation and submit skip it.
 
 ## Install
 
 ```bash
-pnpm add @flowform/plugin-steps-conditional @flowform/core
+pnpm add @formjourney/plugin-steps-conditional @formjourney/core
 ```
 
 ## Usage
 
 ```ts
-import { createForm } from '@flowform/core';
-import { stepsConditionalPlugin } from '@flowform/plugin-steps-conditional';
+import { createForm } from '@formjourney/core';
+import { stepsConditionalPlugin } from '@formjourney/plugin-steps-conditional';
 
 const form = createForm({
   initialValues: {

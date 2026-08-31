@@ -1,4 +1,9 @@
-import type { ErrorMap, FormState, Path, TriggerTarget } from '@flowform/core';
+import type {
+  ErrorMap,
+  FormState,
+  Path,
+  TriggerTarget,
+} from '@formjourney/core';
 import { useCallback, useSyncExternalStore, type FormEvent } from 'react';
 import { useFormContext } from './context.js';
 

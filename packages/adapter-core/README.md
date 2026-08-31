@@ -1,7 +1,7 @@
-# @flowform/adapter-core
+# @formjourney/adapter-core
 
 Turns a native validation schema into a `Validator` for
-[`@flowform/core`](../core). You pass the schema you already wrote — Zod, Yup,
+[`@formjourney/core`](../core). You pass the schema you already wrote — Zod, Yup,
 Joi, Ajv, class-validator, or anything implementing
 [Standard Schema](https://github.com/standard-schema/standard-schema) — and the
 provider is detected at runtime.
@@ -9,7 +9,7 @@ provider is detected at runtime.
 ## Install
 
 ```bash
-pnpm add @flowform/adapter-core @flowform/core
+pnpm add @formjourney/adapter-core @formjourney/core
 ```
 
 The validation libraries are optional peer dependencies: install only the one
@@ -18,7 +18,7 @@ you use.
 ## Usage
 
 ```ts
-import { toValidator } from '@flowform/adapter-core';
+import { toValidator } from '@formjourney/adapter-core';
 import { z } from 'zod';
 
 const validate = toValidator(

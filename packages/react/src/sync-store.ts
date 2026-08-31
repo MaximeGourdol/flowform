@@ -1,4 +1,4 @@
-import type { FormCore, FormState, Unsubscribe } from '@flowform/core';
+import type { FormCore, FormState, Unsubscribe } from '@formjourney/core';
 
 export interface SyncStore<TValues> {
   readonly subscribe: (listener: () => void) => Unsubscribe;

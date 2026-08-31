@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@flowform/vue',
+    name: '@formjourney/vue',
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.ts'],
     passWithNoTests: true,

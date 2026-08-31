@@ -1,5 +1,5 @@
 import { computed, type ComputedRef } from 'vue';
-import { useFlowFormContext } from './context.js';
+import { useFormJourneyContext } from './context.js';
 
 export interface StepApi {
   readonly currentStep: ComputedRef<string | null>;
@@ -14,7 +14,7 @@ export interface StepApi {
 }
 
 export const useStep = (): StepApi => {
-  const ctx = useFlowFormContext();
+  const ctx = useFormJourneyContext();
 
   const currentStep = computed(() => {
     void ctx.state.value;

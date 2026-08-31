@@ -1,4 +1,4 @@
-import type { FormCore } from '@flowform/core';
+import type { FormCore } from '@formjourney/core';
 
 export type {
   ErrorMap,
@@ -7,7 +7,7 @@ export type {
   Path,
   PathValue,
   Validator,
-} from '@flowform/core';
+} from '@formjourney/core';
 
 export { FormProvider, type FormProviderProps } from './provider.js';
 export {

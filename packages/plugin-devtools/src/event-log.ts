@@ -1,4 +1,4 @@
-import type { EventKey, EventMap, Unsubscribe } from '@flowform/core';
+import type { EventKey, EventMap, Unsubscribe } from '@formjourney/core';
 import type { StateSnapshot } from './snapshot.js';
 
 export interface LoggedEvent<K extends EventKey = EventKey> {

@@ -1,4 +1,4 @@
-import type { Path, PathValue } from '@flowform/core';
+import type { Path, PathValue } from '@formjourney/core';
 import { useControl, type ControlApi } from './use-control.js';
 import { useField, type FieldApi } from './use-field.js';
 import {

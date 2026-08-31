@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { FlowFormService } from './flow-form.service';
+import { FormJourneyService } from './form-journey.service';
 
-export const injectFlowForm = <TValues>(): FlowFormService<TValues> =>
-  inject(FlowFormService) as FlowFormService<TValues>;
+export const injectFormJourney = <TValues>(): FormJourneyService<TValues> =>
+  inject(FormJourneyService) as FormJourneyService<TValues>;

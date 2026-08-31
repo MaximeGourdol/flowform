@@ -3,7 +3,7 @@ import type {
   LoggedEvent,
   LogListener,
   StateSnapshot,
-} from '@flowform/plugin-devtools';
+} from '@formjourney/plugin-devtools';
 
 type Unsubscribe = ReturnType<DevtoolsApi['subscribeToLog']>;
 
@@ -128,7 +128,7 @@ const format = (value: unknown): string => {
   }
 };
 
-export class FlowformDevtoolsTimeline extends HTMLElement {
+export class FormJourneyDevtoolsTimeline extends HTMLElement {
   private root: ShadowRoot;
   private api: DevtoolsApi | null = null;
   private unsubscribe: Unsubscribe | null = null;

@@ -1,21 +1,21 @@
-# @flowform/plugin-devtools
+# @formjourney/plugin-devtools
 
-A [`@flowform/core`](../core) plugin that records what happens on the event bus.
+A [`@formjourney/core`](../core) plugin that records what happens on the event bus.
 It keeps a versioned log of events, a state snapshot per event, and can replay a
 range. It renders nothing — pair it with
-[`@flowform/devtools-ui`](../devtools-ui) for a visual timeline.
+[`@formjourney/devtools-ui`](../devtools-ui) for a visual timeline.
 
 ## Install
 
 ```bash
-pnpm add @flowform/plugin-devtools @flowform/core
+pnpm add @formjourney/plugin-devtools @formjourney/core
 ```
 
 ## Usage
 
 ```ts
-import { createForm } from '@flowform/core';
-import { devtoolsPlugin } from '@flowform/plugin-devtools';
+import { createForm } from '@formjourney/core';
+import { devtoolsPlugin } from '@formjourney/plugin-devtools';
 
 const form = createForm({ initialValues: { email: '' } }).use(devtoolsPlugin());
 

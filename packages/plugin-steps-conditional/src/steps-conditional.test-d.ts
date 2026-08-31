@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from 'vitest';
-import { createForm, type FormCore } from '@flowform/core';
+import { createForm, type FormCore } from '@formjourney/core';
 import {
   stepsConditionalPlugin,
   type StepsConditionalApi,

@@ -4,7 +4,7 @@ import type {
   Path,
   PathValue,
   TriggerTarget,
-} from '@flowform/core';
+} from '@formjourney/core';
 import {
   computed,
   Injectable,
@@ -16,28 +16,28 @@ import {
   OnDestroy,
 } from '@angular/core';
 import {
-  FLOW_FORM,
-  FLOW_FORM_MODE,
+  FORM_JOURNEY,
+  FORM_JOURNEY_MODE,
   type FieldTrigger,
-  type FlowFormMode,
+  type FormJourneyMode,
 } from './tokens';
 
-const DEFAULT_MODE: FlowFormMode = {
+const DEFAULT_MODE: FormJourneyMode = {
   mode: 'onSubmit',
   reValidateMode: 'onChange',
 };
 
 @Injectable()
-export class FlowFormService<TValues = unknown> implements OnDestroy {
+export class FormJourneyService<TValues = unknown> implements OnDestroy {
   readonly core: FormCore<TValues>;
 
-  private readonly mode: FlowFormMode;
+  private readonly mode: FormJourneyMode;
   private readonly stateSignal: WritableSignal<FormState<TValues>>;
   private readonly offHandlers: (() => void)[] = [];
 
   constructor(
-    @Inject(FLOW_FORM) core: FormCore<TValues>,
-    @Optional() @Inject(FLOW_FORM_MODE) mode: FlowFormMode | null = null,
+    @Inject(FORM_JOURNEY) core: FormCore<TValues>,
+    @Optional() @Inject(FORM_JOURNEY_MODE) mode: FormJourneyMode | null = null,
   ) {
     this.core = core;
     this.mode = mode ?? DEFAULT_MODE;

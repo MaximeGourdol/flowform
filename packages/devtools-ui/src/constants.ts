@@ -1,1 +1,1 @@
-export const TIMELINE_TAG = 'flowform-devtools-timeline';
+export const TIMELINE_TAG = 'formjourney-devtools-timeline';

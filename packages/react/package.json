@@ -1,7 +1,7 @@
 {
-  "name": "@flowform/react",
+  "name": "@formjourney/react",
   "version": "0.1.0",
-  "description": "React bindings for @flowform/core — Provider + hooks (useField/useStep/useForm) that make headless multi-step forms clé en main",
+  "description": "React bindings for @formjourney/core — Provider + hooks (useField/useStep/useForm) that make headless multi-step forms clé en main",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -44,12 +44,12 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@flowform/core": "workspace:^",
+    "@formjourney/core": "workspace:^",
     "react": ">=18"
   },
   "devDependencies": {
-    "@flowform/core": "workspace:*",
-    "@flowform/plugin-steps-conditional": "workspace:*",
+    "@formjourney/core": "workspace:*",
+    "@formjourney/plugin-steps-conditional": "workspace:*",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.1.0",
     "@types/react": "^18.3.18",

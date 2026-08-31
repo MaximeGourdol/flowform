@@ -1,7 +1,7 @@
 {
-  "name": "@flowform/angular",
+  "name": "@formjourney/angular",
   "version": "0.1.0",
-  "description": "Angular bindings for @flowform/core — provideFlowForm + a FlowForm service, signals, and a [flowField] directive for headless multi-step forms",
+  "description": "Angular bindings for @formjourney/core — provideFormJourney + a FormJourney service, signals, and a [journeyField] directive for headless multi-step forms",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     },
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/fesm2022/flowform-angular.mjs"
+      "default": "./dist/fesm2022/formjourney-angular.mjs"
     }
   },
   "publishConfig": {
@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "@angular/core": ">=17",
-    "@flowform/core": "workspace:^",
+    "@formjourney/core": "workspace:^",
     "rxjs": ">=7"
   },
   "devDependencies": {
@@ -46,8 +46,8 @@
     "@angular/compiler": "^20.3.27",
     "@angular/compiler-cli": "^20.3.27",
     "@angular/core": "^20.3.27",
-    "@flowform/core": "workspace:*",
-    "@flowform/plugin-steps-conditional": "workspace:*",
+    "@formjourney/core": "workspace:*",
+    "@formjourney/plugin-steps-conditional": "workspace:*",
     "ng-packagr": "^20.3.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.8.1",

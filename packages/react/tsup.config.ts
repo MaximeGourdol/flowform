@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@flowform/core', 'react', 'react/jsx-runtime'],
+  external: ['@formjourney/core', 'react', 'react/jsx-runtime'],
   outExtension({ format }) {
     return { js: format === 'cjs' ? '.cjs' : '.js' };
   },

@@ -17,7 +17,7 @@ export type { ReplayOptions } from './replay.js';
 
 import type { DevtoolsApi } from './devtools-plugin.js';
 
-declare module '@flowform/core' {
+declare module '@formjourney/core' {
   interface FormPluginRegistry {
     devtools: DevtoolsApi;
   }

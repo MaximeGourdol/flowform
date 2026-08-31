@@ -1,4 +1,4 @@
-import type { ErrorMap, ValidationContext } from '@flowform/core';
+import type { ErrorMap, ValidationContext } from '@formjourney/core';
 
 export interface StandardPathSegment {
   readonly key: PropertyKey;

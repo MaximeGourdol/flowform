@@ -1,13 +1,13 @@
-# @flowform/vue
+# @formjourney/vue
 
-Vue 3 bindings for [`@flowform/core`](../core). A form is created once and
+Vue 3 bindings for [`@formjourney/core`](../core). A form is created once and
 provided down the tree; composables expose it as refs, so fields bind with
 `v-model` and everything else is a `computed` ref.
 
 ## Install
 
 ```bash
-pnpm add @flowform/vue @flowform/core vue
+pnpm add @formjourney/vue @formjourney/core vue
 ```
 
 ## Setup
@@ -17,8 +17,8 @@ the composables.
 
 ```vue
 <script setup lang="ts">
-import { provideFlowForm } from '@flowform/vue';
-import { createForm } from '@flowform/core';
+import { provideFormJourney } from '@formjourney/vue';
+import { createForm } from '@formjourney/core';
 import Wizard from './Wizard.vue';
 
 interface Values {
@@ -26,7 +26,7 @@ interface Values {
   tags: { name: string }[];
 }
 
-provideFlowForm<Values>(() =>
+provideFormJourney<Values>(() =>
   createForm<Values>({
     initialValues: { email: '', tags: [] },
     steps: [{ id: 'account' }, { id: 'review' }],
@@ -39,7 +39,7 @@ provideFlowForm<Values>(() =>
 </template>
 ```
 
-`provideFlowForm` takes either `CreateFormOptions` (optionally with `mode` /
+`provideFormJourney` takes either `CreateFormOptions` (optionally with `mode` /
 `reValidateMode`) or a factory returning a `FormCore` — use the factory when you
 add plugins. Provide and consume must live in **different** components: a parent
 provides, its descendants inject. That is the Vue equivalent of React's
@@ -51,7 +51,7 @@ Returns a writable `model` ref for `v-model`, plus reactive `error` / `touched`.
 
 ```vue
 <script setup lang="ts">
-import { useField } from '@flowform/vue';
+import { useField } from '@formjourney/vue';
 const email = useField<Values, 'email'>('email');
 </script>
 
@@ -113,7 +113,7 @@ const all = useObserve<Values>(); // ComputedRef<Values>
 
 ## Validation modes
 
-`provideFlowForm`'s options take `mode` and `reValidateMode`
+`provideFormJourney`'s options take `mode` and `reValidateMode`
 (`onSubmit` | `onChange` | `onBlur`), matching the React and Angular bindings.
 
 - `mode` — when a field is first validated, before it has an error.

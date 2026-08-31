@@ -1,4 +1,4 @@
-import type { ErrorMap } from '@flowform/core';
+import type { ErrorMap } from '@formjourney/core';
 import type { StandardResult, StandardSchemaV1 } from '../types.js';
 import { addIssue, normalizePath, type MutableErrorMap } from '../error-map.js';
 

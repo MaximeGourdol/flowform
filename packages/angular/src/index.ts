@@ -1,11 +1,11 @@
-export { provideFlowForm, type ProvideFlowFormOptions } from './provide';
-export { FlowFormService } from './flow-form.service';
-export { FlowFieldDirective } from './flow-field.directive';
-export { injectFlowForm } from './inject';
+export { provideFormJourney, type ProvideFormJourneyOptions } from './provide';
+export { FormJourneyService } from './form-journey.service';
+export { JourneyFieldDirective } from './journey-field.directive';
+export { injectFormJourney } from './inject';
 export {
-  FLOW_FORM,
-  FLOW_FORM_MODE,
-  type FlowFormMode,
+  FORM_JOURNEY,
+  FORM_JOURNEY_MODE,
+  type FormJourneyMode,
   type ValidationMode,
   type ReValidationMode,
   type FieldTrigger,
@@ -19,4 +19,4 @@ export type {
   PathValue,
   Validator,
   TriggerTarget,
-} from '@flowform/core';
+} from '@formjourney/core';

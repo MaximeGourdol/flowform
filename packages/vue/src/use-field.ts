@@ -1,6 +1,6 @@
-import type { Path, PathValue } from '@flowform/core';
+import type { Path, PathValue } from '@formjourney/core';
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
-import { useFlowFormContext } from './context.js';
+import { useFormJourneyContext } from './context.js';
 import { revalidate } from './revalidate.js';
 
 export interface FieldApi<TValue> {
@@ -17,7 +17,7 @@ export const useField = <TValues, P extends Path<TValues>>(
   path: P,
 ): FieldApi<PathValue<TValues, P & string>> => {
   type TValue = PathValue<TValues, P & string>;
-  const ctx = useFlowFormContext<TValues>();
+  const ctx = useFormJourneyContext<TValues>();
 
   const write = (value: TValue): void => {
     ctx.core.store.setValue(path, value);

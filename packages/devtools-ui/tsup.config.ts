@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@flowform/plugin-devtools', '@flowform/core'],
+  external: ['@formjourney/plugin-devtools', '@formjourney/core'],
   outExtension({ format }) {
     return { js: format === 'cjs' ? '.cjs' : '.js' };
   },

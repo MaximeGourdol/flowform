@@ -6,18 +6,18 @@ import {
   Input,
   inject,
 } from '@angular/core';
-import { FlowFormService } from './flow-form.service';
+import { FormJourneyService } from './form-journey.service';
 
 @Directive({
-  selector: '[flowField]',
+  selector: '[journeyField]',
   standalone: true,
 })
-export class FlowFieldDirective {
-  private readonly form = inject(FlowFormService);
+export class JourneyFieldDirective {
+  private readonly form = inject(FormJourneyService);
   private readonly el =
     inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
 
-  @Input({ required: true, alias: 'flowField' }) path!: string;
+  @Input({ required: true, alias: 'journeyField' }) path!: string;
 
   constructor() {
     effect(() => {

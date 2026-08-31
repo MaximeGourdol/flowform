@@ -1,4 +1,4 @@
-import type { Path } from '@flowform/core';
+import type { Path } from '@formjourney/core';
 
 export interface EqualsCondition<TValues> {
   readonly field: Path<TValues>;

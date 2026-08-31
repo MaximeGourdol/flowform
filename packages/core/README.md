@@ -1,4 +1,4 @@
-# @flowform/core
+# @formjourney/core
 
 The headless engine for multi-step forms. Zero runtime dependencies, strict
 TypeScript, no knowledge of any UI framework. A form is a plain object you read,
@@ -8,13 +8,13 @@ other packages.
 ## Install
 
 ```bash
-pnpm add @flowform/core
+pnpm add @formjourney/core
 ```
 
 ## Creating a form
 
 ```ts
-import { createForm } from '@flowform/core';
+import { createForm } from '@formjourney/core';
 
 const form = createForm({
   initialValues: { email: '', password: '' },
@@ -156,7 +156,7 @@ A plugin adds its own key from its own package, so the core stays unaware of
 every plugin at compile time and runtime:
 
 ```ts
-declare module '@flowform/core' {
+declare module '@formjourney/core' {
   interface FormPluginRegistry {
     analytics: AnalyticsApi;
   }
@@ -164,7 +164,7 @@ declare module '@flowform/core' {
 ```
 
 Importing the plugin pulls in the augmentation, and `form.analytics` becomes
-typed with no change to `@flowform/core`.
+typed with no change to `@formjourney/core`.
 
 ### Writing a plugin
 
@@ -172,13 +172,13 @@ A plugin is a factory returning a `Plugin<TApi>`. It touches the core only
 through `store` and `bus`, never another plugin directly.
 
 ```ts
-import type { Plugin } from '@flowform/core';
+import type { Plugin } from '@formjourney/core';
 
 export interface AnalyticsApi {
   track: (event: string) => void;
 }
 
-declare module '@flowform/core' {
+declare module '@formjourney/core' {
   interface FormPluginRegistry {
     analytics: AnalyticsApi;
   }
@@ -202,7 +202,7 @@ Conventions for plugin packages:
 - Augment `FormPluginRegistry` from the plugin package, never from the core.
 - Export both the API type (`XxxApi`) and the factory (`xxx()`).
 - Registry keys are `camelCase`, matching the property they expose.
-- Declare `@flowform/core` as a `peerDependency`.
+- Declare `@formjourney/core` as a `peerDependency`.
 - No plugin-to-plugin imports; communicate over the bus.
 
 ## License

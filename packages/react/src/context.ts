@@ -1,4 +1,4 @@
-import type { FormCore, Path, PathValue } from '@flowform/core';
+import type { FormCore, Path, PathValue } from '@formjourney/core';
 import { createContext, useContext } from 'react';
 import type { SyncStore } from './sync-store.js';
 

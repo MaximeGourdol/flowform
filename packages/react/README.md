@@ -1,13 +1,13 @@
-# @flowform/react
+# @formjourney/react
 
-React bindings for [`@flowform/core`](../core). A provider puts a form on the
+React bindings for [`@formjourney/core`](../core). A provider puts a form on the
 context; hooks read and write it with the right re-renders, and no manual store
 subscriptions.
 
 ## Install
 
 ```bash
-pnpm add @flowform/react @flowform/core react
+pnpm add @formjourney/react @formjourney/core react
 ```
 
 ## Setup
@@ -16,8 +16,8 @@ Create the form once, wrap your tree in `FormProvider`, and build typed hooks
 for your values type.
 
 ```tsx
-import { createForm } from '@flowform/core';
-import { createFormHooks, FormProvider } from '@flowform/react';
+import { createForm } from '@formjourney/core';
+import { createFormHooks, FormProvider } from '@formjourney/react';
 import { useMemo } from 'react';
 
 interface Values {

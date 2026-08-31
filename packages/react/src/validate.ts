@@ -1,4 +1,4 @@
-import type { ErrorMap, FormCore } from '@flowform/core';
+import type { ErrorMap, FormCore } from '@formjourney/core';
 
 interface ConditionalApi {
   readonly activeStepIds: () => readonly string[];

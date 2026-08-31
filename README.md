@@ -1,9 +1,9 @@
-# flowform
+# FormJourney
 
 [![CI](https://github.com/MaximeGourdol/flowform/actions/workflows/ci.yml/badge.svg)](https://github.com/MaximeGourdol/flowform/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![types](https://img.shields.io/npm/types/@flowform/core.svg?logo=typescript&logoColor=white)](https://www.npmjs.com/package/@flowform/core)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@flowform/core.svg)](https://bundlephobia.com/package/@flowform/core)
+[![types](https://img.shields.io/npm/types/@formjourney/core.svg?logo=typescript&logoColor=white)](https://www.npmjs.com/package/@formjourney/core)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@formjourney/core.svg)](https://bundlephobia.com/package/@formjourney/core)
 [![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-f69220.svg?logo=pnpm&logoColor=white)](https://pnpm.io)
 
 Headless multi-step form management for TypeScript. The engine has no runtime
@@ -11,8 +11,8 @@ dependencies and knows nothing about any UI framework; bindings and validation
 adapters live in separate packages you add only if you need them.
 
 ```ts
-import { createForm } from '@flowform/core';
-import { toValidator } from '@flowform/adapter-core';
+import { createForm } from '@formjourney/core';
+import { toValidator } from '@formjourney/adapter-core';
 import { z } from 'zod';
 
 const form = createForm({
@@ -34,16 +34,16 @@ await form.submit(async (values) => {
 
 ## Packages
 
-| Package                                                                   | What it is                                                                                                                                                 |
-| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@flowform/core`](packages/core)                                         | The headless engine: store, step engine, event bus, submit lifecycle, plugin system                                                                        |
-| [`@flowform/react`](packages/react)                                       | React bindings — `FormProvider` plus `useField` / `useStep` / `useForm` / `useFieldList` / `useObserve` / `useControl`                                     |
-| [`@flowform/angular`](packages/angular)                                   | Angular bindings — `provideFlowForm`, a signals-based `FlowFormService`, and a `[flowField]` directive                                                     |
-| [`@flowform/vue`](packages/vue)                                           | Vue 3 bindings — `provideFlowForm` plus composables (`useField` for `v-model`, `useStep`, `useForm`, `useFieldList`, `useObserve`)                         |
-| [`@flowform/adapter-core`](packages/adapter-core)                         | `toValidator(schema)` — turns a native schema (Zod, Yup, Joi, Ajv, class-validator, or any Standard Schema) into a validator, provider detected at runtime |
-| [`@flowform/plugin-steps-conditional`](packages/plugin-steps-conditional) | Show or hide steps from field values; clears a removed step's fields automatically                                                                         |
-| [`@flowform/plugin-devtools`](packages/plugin-devtools)                   | Collects a versioned event log and state snapshots from the bus                                                                                            |
-| [`@flowform/devtools-ui`](packages/devtools-ui)                           | A Shadow-DOM web component that renders the devtools timeline                                                                                              |
+| Package                                                                      | What it is                                                                                                                                                 |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@formjourney/core`](packages/core)                                         | The headless engine: store, step engine, event bus, submit lifecycle, plugin system                                                                        |
+| [`@formjourney/react`](packages/react)                                       | React bindings — `FormProvider` plus `useField` / `useStep` / `useForm` / `useFieldList` / `useObserve` / `useControl`                                     |
+| [`@formjourney/angular`](packages/angular)                                   | Angular bindings — `provideFormJourney`, a signals-based `FormJourneyService`, and a `[journeyField]` directive                                            |
+| [`@formjourney/vue`](packages/vue)                                           | Vue 3 bindings — `provideFormJourney` plus composables (`useField` for `v-model`, `useStep`, `useForm`, `useFieldList`, `useObserve`)                      |
+| [`@formjourney/adapter-core`](packages/adapter-core)                         | `toValidator(schema)` — turns a native schema (Zod, Yup, Joi, Ajv, class-validator, or any Standard Schema) into a validator, provider detected at runtime |
+| [`@formjourney/plugin-steps-conditional`](packages/plugin-steps-conditional) | Show or hide steps from field values; clears a removed step's fields automatically                                                                         |
+| [`@formjourney/plugin-devtools`](packages/plugin-devtools)                   | Collects a versioned event log and state snapshots from the bus                                                                                            |
+| [`@formjourney/devtools-ui`](packages/devtools-ui)                           | A Shadow-DOM web component that renders the devtools timeline                                                                                              |
 
 Everything is framework-agnostic except the bindings. The same core drives the
 React, Angular, and Vue bindings.

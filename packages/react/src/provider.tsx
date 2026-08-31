@@ -1,4 +1,4 @@
-import type { ErrorMap, FormCore, Path, PathValue } from '@flowform/core';
+import type { ErrorMap, FormCore, Path, PathValue } from '@formjourney/core';
 import { useEffect, useMemo, type ReactNode } from 'react';
 import {
   FormContext,

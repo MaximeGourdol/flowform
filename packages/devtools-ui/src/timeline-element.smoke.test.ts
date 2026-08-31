@@ -1,8 +1,8 @@
-import { createForm, type FormCore } from '@flowform/core';
-import { devtoolsPlugin, type DevtoolsApi } from '@flowform/plugin-devtools';
+import { createForm, type FormCore } from '@formjourney/core';
+import { devtoolsPlugin, type DevtoolsApi } from '@formjourney/plugin-devtools';
 import { afterEach, describe, expect, it } from 'vitest';
 import { registerTimeline, TIMELINE_TAG } from './register.js';
-import { FlowformDevtoolsTimeline } from './timeline-element.js';
+import { FormJourneyDevtoolsTimeline } from './timeline-element.js';
 
 interface Values {
   name: string;
@@ -36,21 +36,21 @@ afterEach(() => {
 describe('devtools-ui — registration', () => {
   it('defines the custom element under its tag', () => {
     registerTimeline();
-    expect(customElements.get(TIMELINE_TAG)).toBe(FlowformDevtoolsTimeline);
+    expect(customElements.get(TIMELINE_TAG)).toBe(FormJourneyDevtoolsTimeline);
   });
 
   it('creates an instance through the registered tag', () => {
     registerTimeline();
     const el = mount(document.createElement(TIMELINE_TAG));
-    expect(el).toBeInstanceOf(FlowformDevtoolsTimeline);
+    expect(el).toBeInstanceOf(FormJourneyDevtoolsTimeline);
   });
 });
 
 describe('devtools-ui — mount smoke', () => {
   it('renders a shadow root without a live api', () => {
     const el = mount(
-      new FlowformDevtoolsTimeline(),
-    ) as FlowformDevtoolsTimeline;
+      new FormJourneyDevtoolsTimeline(),
+    ) as FormJourneyDevtoolsTimeline;
     expect(el.shadowRoot).not.toBeNull();
     expect(el.shadowRoot?.querySelector('.grid')).not.toBeNull();
   });
@@ -58,8 +58,8 @@ describe('devtools-ui — mount smoke', () => {
   it('accepts a live DevtoolsApi and reflects logged events without throwing', async () => {
     const { api, form } = makeApi();
     const el = mount(
-      new FlowformDevtoolsTimeline(),
-    ) as FlowformDevtoolsTimeline;
+      new FormJourneyDevtoolsTimeline(),
+    ) as FormJourneyDevtoolsTimeline;
 
     expect(() => {
       el.setApi(api);
@@ -78,8 +78,8 @@ describe('devtools-ui — mount smoke', () => {
   it('unsubscribes on disconnect without throwing', () => {
     const { api, form } = makeApi();
     const el = mount(
-      new FlowformDevtoolsTimeline(),
-    ) as FlowformDevtoolsTimeline;
+      new FormJourneyDevtoolsTimeline(),
+    ) as FormJourneyDevtoolsTimeline;
     el.setApi(api);
 
     el.remove();

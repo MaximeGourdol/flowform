@@ -1,6 +1,6 @@
-import type { Path, PathValue } from '@flowform/core';
+import type { Path, PathValue } from '@formjourney/core';
 import { computed, type ComputedRef } from 'vue';
-import { useFlowFormContext } from './context.js';
+import { useFormJourneyContext } from './context.js';
 
 export type ItemOf<TValues, P extends Path<TValues>> =
   PathValue<TValues, P & string> extends readonly (infer U)[] ? U : unknown;
@@ -19,7 +19,7 @@ export const useFieldList = <TValues, P extends Path<TValues>>(
   path: P,
 ): FieldListApi<ItemOf<TValues, P>> => {
   type TItem = ItemOf<TValues, P>;
-  const ctx = useFlowFormContext<TValues>();
+  const ctx = useFormJourneyContext<TValues>();
 
   const items = computed<readonly TItem[]>(() => {
     void ctx.state.value;

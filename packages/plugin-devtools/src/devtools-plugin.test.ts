@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createForm, type FormCore } from '@flowform/core';
+import { createForm, type FormCore } from '@formjourney/core';
 import { devtoolsPlugin, type DevtoolsApi } from './devtools-plugin.js';
 
 interface Values {

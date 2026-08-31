@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, it } from 'vitest';
 import { z } from 'zod';
 import * as yup from 'yup';
-import type { ValidationContext, Validator } from '@flowform/core';
+import type { ValidationContext, Validator } from '@formjourney/core';
 import { toValidator } from './to-validator.js';
 
 describe('toValidator inference', () => {

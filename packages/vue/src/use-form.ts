@@ -1,6 +1,6 @@
-import type { ErrorMap, Path, TriggerTarget } from '@flowform/core';
+import type { ErrorMap, Path, TriggerTarget } from '@formjourney/core';
 import { computed, type ComputedRef } from 'vue';
-import { useFlowFormContext } from './context.js';
+import { useFormJourneyContext } from './context.js';
 
 export type SubmitHandler<TValues> = (values: TValues) => void | Promise<void>;
 
@@ -18,7 +18,7 @@ export interface FormApi<TValues> {
 }
 
 export const useForm = <TValues>(): FormApi<TValues> => {
-  const ctx = useFlowFormContext<TValues>();
+  const ctx = useFormJourneyContext<TValues>();
 
   const reset = (partial?: Partial<TValues>): void => {
     ctx.core.store.reset(partial);

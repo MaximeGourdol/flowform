@@ -2,36 +2,36 @@ import {
   createForm,
   type CreateFormOptions,
   type FormCore,
-} from '@flowform/core';
+} from '@formjourney/core';
 import type { Provider } from '@angular/core';
-import { FlowFormService } from './flow-form.service';
+import { FormJourneyService } from './form-journey.service';
 import {
-  FLOW_FORM,
-  FLOW_FORM_MODE,
+  FORM_JOURNEY,
+  FORM_JOURNEY_MODE,
   type ReValidationMode,
   type ValidationMode,
 } from './tokens';
 
-export interface ProvideFlowFormOptions {
+export interface ProvideFormJourneyOptions {
   readonly mode?: ValidationMode;
   readonly reValidateMode?: ReValidationMode;
 }
 
-export const provideFlowForm = <TValues>(
+export const provideFormJourney = <TValues>(
   form: CreateFormOptions<TValues> | (() => FormCore<TValues>),
-  options?: ProvideFlowFormOptions,
+  options?: ProvideFormJourneyOptions,
 ): Provider[] => [
   {
-    provide: FLOW_FORM,
+    provide: FORM_JOURNEY,
     useFactory: (): FormCore<TValues> =>
       typeof form === 'function' ? form() : createForm(form),
   },
   {
-    provide: FLOW_FORM_MODE,
+    provide: FORM_JOURNEY_MODE,
     useValue: {
       mode: options?.mode ?? 'onSubmit',
       reValidateMode: options?.reValidateMode ?? 'onChange',
     },
   },
-  FlowFormService,
+  FormJourneyService,
 ];

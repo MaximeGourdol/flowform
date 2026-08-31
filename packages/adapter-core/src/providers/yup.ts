@@ -1,4 +1,4 @@
-import type { ErrorMap } from '@flowform/core';
+import type { ErrorMap } from '@formjourney/core';
 import type { YupLikeSchema } from '../types.js';
 import { addIssue, type MutableErrorMap } from '../error-map.js';
 

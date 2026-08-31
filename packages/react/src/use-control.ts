@@ -1,4 +1,4 @@
-import type { Path, PathValue } from '@flowform/core';
+import type { Path, PathValue } from '@formjourney/core';
 import { useCallback, useSyncExternalStore, type ReactNode } from 'react';
 import { useFormContext } from './context.js';
 

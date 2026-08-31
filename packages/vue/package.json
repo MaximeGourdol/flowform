@@ -1,7 +1,7 @@
 {
-  "name": "@flowform/vue",
+  "name": "@formjourney/vue",
   "version": "0.1.0",
-  "description": "Vue 3 bindings for @flowform/core — createVueForm + composables (useField/useStep/useForm) with v-model-ready refs",
+  "description": "Vue 3 bindings for @formjourney/core — createVueForm + composables (useField/useStep/useForm) with v-model-ready refs",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -44,12 +44,12 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@flowform/core": "workspace:^",
+    "@formjourney/core": "workspace:^",
     "vue": ">=3.4"
   },
   "devDependencies": {
-    "@flowform/core": "workspace:*",
-    "@flowform/plugin-steps-conditional": "workspace:*",
+    "@formjourney/core": "workspace:*",
+    "@formjourney/plugin-steps-conditional": "workspace:*",
     "@vue/test-utils": "^2.4.11",
     "jsdom": "^25.0.1",
     "tsup": "^8.3.5",

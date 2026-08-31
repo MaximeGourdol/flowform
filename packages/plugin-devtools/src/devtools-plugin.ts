@@ -1,4 +1,4 @@
-import type { EventKey, Plugin, Unsubscribe } from '@flowform/core';
+import type { EventKey, Plugin, Unsubscribe } from '@formjourney/core';
 import {
   createEventLog,
   type EventLog,

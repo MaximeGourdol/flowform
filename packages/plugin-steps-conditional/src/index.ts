@@ -15,7 +15,7 @@ export type {
 
 import type { StepsConditionalApi } from './steps-conditional.js';
 
-declare module '@flowform/core' {
+declare module '@formjourney/core' {
   interface FormPluginRegistry {
     conditionalSteps: StepsConditionalApi;
   }

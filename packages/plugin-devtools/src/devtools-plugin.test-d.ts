@@ -1,4 +1,4 @@
-import type { FormCore, Plugin, Unsubscribe } from '@flowform/core';
+import type { FormCore, Plugin, Unsubscribe } from '@formjourney/core';
 import { describe, expectTypeOf, it } from 'vitest';
 import {
   devtoolsPlugin,

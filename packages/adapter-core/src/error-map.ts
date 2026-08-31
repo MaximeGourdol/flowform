@@ -1,4 +1,4 @@
-import type { ErrorMap } from '@flowform/core';
+import type { ErrorMap } from '@formjourney/core';
 import type { StandardPathSegment } from './types.js';
 
 export type MutableErrorMap = Record<string, string[]>;

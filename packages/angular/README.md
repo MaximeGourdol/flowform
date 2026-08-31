@@ -1,13 +1,13 @@
-# @flowform/angular
+# @formjourney/angular
 
-Angular bindings for [`@flowform/core`](../core). A DI provider puts a form in
-the injector; a service exposes it as signals, and a `[flowField]` directive
+Angular bindings for [`@formjourney/core`](../core). A DI provider puts a form in
+the injector; a service exposes it as signals, and a `[journeyField]` directive
 binds inputs. Works zoneless (Angular 17+ signals).
 
 ## Install
 
 ```bash
-pnpm add @flowform/angular @flowform/core @angular/core rxjs
+pnpm add @formjourney/angular @formjourney/core @angular/core rxjs
 ```
 
 ## Setup
@@ -17,11 +17,11 @@ Provide the form where you want it scoped — a component, a route, or the app.
 ```ts
 import { Component } from '@angular/core';
 import {
-  provideFlowForm,
-  injectFlowForm,
-  FlowFieldDirective,
-} from '@flowform/angular';
-import { createForm } from '@flowform/core';
+  provideFormJourney,
+  injectFormJourney,
+  JourneyFieldDirective,
+} from '@formjourney/angular';
+import { createForm } from '@formjourney/core';
 
 interface Values {
   email: string;
@@ -31,9 +31,9 @@ interface Values {
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [FlowFieldDirective],
+  imports: [JourneyFieldDirective],
   providers: [
-    provideFlowForm<Values>(() =>
+    provideFormJourney<Values>(() =>
       createForm<Values>({
         initialValues: { email: '', tags: [] },
         steps: [{ id: 'account' }, { id: 'review' }],
@@ -41,7 +41,7 @@ interface Values {
     ),
   ],
   template: `
-    <input type="email" flowField="account.email" />
+    <input type="email" journeyField="account.email" />
     @if (form.error('email')(); as e) {
       <span class="error">{{ e }}</span>
     }
@@ -49,31 +49,31 @@ interface Values {
   `,
 })
 export class SignupComponent {
-  readonly form = injectFlowForm<Values>();
+  readonly form = injectFormJourney<Values>();
 }
 ```
 
-`provideFlowForm` takes either `CreateFormOptions` or a factory returning a
+`provideFormJourney` takes either `CreateFormOptions` or a factory returning a
 `FormCore` (use the factory when you add plugins), plus optional validation
-modes. `injectFlowForm<Values>()` returns the `FlowFormService` typed to your
+modes. `injectFormJourney<Values>()` returns the `FormJourneyService` typed to your
 values.
 
 ```ts
-provideFlowForm<Values>(() => createForm(...), {
+provideFormJourney<Values>(() => createForm(...), {
   mode: 'onSubmit', // when a field is first validated
   reValidateMode: 'onChange', // how an errored field re-validates
 });
 ```
 
-## The `[flowField]` directive
+## The `[journeyField]` directive
 
 Binds an `<input>` to a path: it writes on `input`, marks the field touched on
 `blur`, and reflects the value back when it changes elsewhere. Checkboxes are
 handled by `type`.
 
 ```html
-<input type="email" flowField="account.email" />
-<input type="checkbox" flowField="needsShipping" />
+<input type="email" journeyField="account.email" />
+<input type="checkbox" journeyField="needsShipping" />
 ```
 
 ## The service as signals
@@ -123,20 +123,20 @@ form.moveItem('tags', 0, 1);
 
 ## Conditional steps
 
-Add [`@flowform/plugin-steps-conditional`](../plugin-steps-conditional) to the
-form in the `provideFlowForm` factory. `activeSteps()`, `next()`, and `submit()`
+Add [`@formjourney/plugin-steps-conditional`](../plugin-steps-conditional) to the
+form in the `provideFormJourney` factory. `activeSteps()`, `next()`, and `submit()`
 respect the rules automatically — a hidden step never blocks navigation or
 submit.
 
 ## Validation modes
 
-`provideFlowForm`'s second argument takes `mode` and `reValidateMode`
+`provideFormJourney`'s second argument takes `mode` and `reValidateMode`
 (`onSubmit` | `onChange` | `onBlur`), matching the React binding.
 
 - `mode` — when a field is first validated, before it has an error.
 - `reValidateMode` — how a field re-validates once it already shows an error.
 
-The `[flowField]` directive drives this on `input` / `blur`. The default,
+The `[journeyField]` directive drives this on `input` / `blur`. The default,
 `mode: 'onSubmit'` with `reValidateMode: 'onChange'`, shows no errors while the
 user first types, but once an error appears it clears itself as they fix the
 field.

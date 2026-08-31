@@ -1,7 +1,7 @@
 {
-  "name": "@flowform/adapter-core",
+  "name": "@formjourney/adapter-core",
   "version": "0.1.0",
-  "description": "Universal validation adapter for @flowform/core — pass a native schema (Standard Schema / Zod / Valibot / ArkType / Yup) and get a typed Validator, provider detected at runtime",
+  "description": "Universal validation adapter for @formjourney/core — pass a native schema (Standard Schema / Zod / Valibot / ArkType / Yup) and get a typed Validator, provider detected at runtime",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -44,7 +44,7 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@flowform/core": "workspace:^",
+    "@formjourney/core": "workspace:^",
     "ajv": "*",
     "class-validator": "*",
     "joi": "*",
@@ -65,7 +65,7 @@
     }
   },
   "devDependencies": {
-    "@flowform/core": "workspace:*",
+    "@formjourney/core": "workspace:*",
     "ajv": "^8.17.1",
     "arktype": "^2.2.3",
     "class-transformer": "^0.5.1",

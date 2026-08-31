@@ -53,7 +53,7 @@ importers:
 
   packages/adapter-core:
     devDependencies:
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
       ajv:
@@ -107,10 +107,10 @@ importers:
       '@angular/core':
         specifier: ^20.3.27
         version: 20.3.27(@angular/compiler@20.3.27)(rxjs@7.8.2)(zone.js@0.15.1)
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
-      '@flowform/plugin-steps-conditional':
+      '@formjourney/plugin-steps-conditional':
         specifier: workspace:*
         version: link:../plugin-steps-conditional
       ng-packagr:
@@ -143,10 +143,10 @@ importers:
 
   packages/devtools-ui:
     devDependencies:
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
-      '@flowform/plugin-devtools':
+      '@formjourney/plugin-devtools':
         specifier: workspace:*
         version: link:../plugin-devtools
       jsdom:
@@ -164,7 +164,7 @@ importers:
 
   packages/plugin-devtools:
     devDependencies:
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
       tsup:
@@ -179,7 +179,7 @@ importers:
 
   packages/plugin-steps-conditional:
     devDependencies:
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
       tsup:
@@ -194,10 +194,10 @@ importers:
 
   packages/react:
     devDependencies:
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
-      '@flowform/plugin-steps-conditional':
+      '@formjourney/plugin-steps-conditional':
         specifier: workspace:*
         version: link:../plugin-steps-conditional
       '@testing-library/dom':
@@ -233,10 +233,10 @@ importers:
 
   packages/vue:
     devDependencies:
-      '@flowform/core':
+      '@formjourney/core':
         specifier: workspace:*
         version: link:../core
-      '@flowform/plugin-steps-conditional':
+      '@formjourney/plugin-steps-conditional':
         specifier: workspace:*
         version: link:../plugin-steps-conditional
       '@vue/test-utils':

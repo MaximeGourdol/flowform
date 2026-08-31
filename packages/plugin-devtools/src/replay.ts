@@ -1,4 +1,4 @@
-import type { EventBus } from '@flowform/core';
+import type { EventBus } from '@formjourney/core';
 import type { EventLog } from './event-log.js';
 
 export interface ReplayOptions {

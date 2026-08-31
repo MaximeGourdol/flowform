@@ -1,5 +1,5 @@
-import { createForm, type Validator } from '@flowform/core';
-import { stepsConditionalPlugin } from '@flowform/plugin-steps-conditional';
+import { createForm, type Validator } from '@formjourney/core';
+import { stepsConditionalPlugin } from '@formjourney/plugin-steps-conditional';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { defineComponent, h, type Component } from 'vue';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -7,7 +7,7 @@ import { createVueForm } from './create.js';
 import {
   provideForm,
   type CreateContextOptions,
-  type FlowFormContext,
+  type FormJourneyContext,
 } from './context.js';
 import { useField } from './use-field.js';
 import { useStep } from './use-step.js';
@@ -23,7 +23,7 @@ interface Values {
 const emailRequired: Validator<Values> = (v) =>
   v.email === '' ? { email: ['Required'] } : {};
 
-const makeCtx = (options?: CreateContextOptions): FlowFormContext<Values> =>
+const makeCtx = (options?: CreateContextOptions): FormJourneyContext<Values> =>
   createVueForm<Values>(
     () =>
       createForm<Values>({
@@ -48,7 +48,7 @@ afterEach(() => {
 });
 
 const harness = (
-  ctx: FlowFormContext<Values>,
+  ctx: FormJourneyContext<Values>,
   setup: () => () => unknown,
 ): VueWrapper => {
   disposers.push(ctx.dispose);

@@ -1,8 +1,8 @@
-import type { Path } from '@flowform/core';
-import type { FieldTrigger, FlowFormContext } from './context.js';
+import type { Path } from '@formjourney/core';
+import type { FieldTrigger, FormJourneyContext } from './context.js';
 
 export const revalidate = async <TValues>(
-  ctx: FlowFormContext<TValues>,
+  ctx: FormJourneyContext<TValues>,
   path: Path<TValues>,
   trigger: FieldTrigger,
 ): Promise<void> => {

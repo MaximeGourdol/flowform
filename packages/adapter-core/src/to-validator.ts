@@ -1,4 +1,4 @@
-import type { ErrorMap, Validator } from '@flowform/core';
+import type { ErrorMap, Validator } from '@formjourney/core';
 import type { AnySchema, InferValues, ToValidatorOptions } from './types.js';
 import { filterByPaths } from './error-map.js';
 import {

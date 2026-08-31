@@ -2,12 +2,12 @@ import {
   createForm,
   type CreateFormOptions,
   type FormCore,
-} from '@flowform/core';
+} from '@formjourney/core';
 import {
   createContext,
   provideForm,
   type CreateContextOptions,
-  type FlowFormContext,
+  type FormJourneyContext,
 } from './context.js';
 
 export type CreateVueFormOptions<TValues> = CreateFormOptions<TValues> &
@@ -16,7 +16,7 @@ export type CreateVueFormOptions<TValues> = CreateFormOptions<TValues> &
 export const createVueForm = <TValues>(
   options: CreateVueFormOptions<TValues> | (() => FormCore<TValues>),
   contextOptions?: CreateContextOptions,
-): FlowFormContext<TValues> => {
+): FormJourneyContext<TValues> => {
   if (typeof options === 'function') {
     return createContext(options(), contextOptions);
   }
@@ -27,10 +27,10 @@ export const createVueForm = <TValues>(
   });
 };
 
-export const provideFlowForm = <TValues>(
+export const provideFormJourney = <TValues>(
   options: CreateVueFormOptions<TValues> | (() => FormCore<TValues>),
   contextOptions?: CreateContextOptions,
-): FlowFormContext<TValues> => {
+): FormJourneyContext<TValues> => {
   const context = createVueForm(options, contextOptions);
   provideForm(context);
   return context;

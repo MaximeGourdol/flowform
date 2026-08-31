@@ -1,7 +1,7 @@
 {
-  "name": "@flowform/devtools-ui",
+  "name": "@formjourney/devtools-ui",
   "version": "0.1.0",
-  "description": "Web component overlay for @flowform/plugin-devtools — Shadow DOM event timeline, zero UI-framework dependency",
+  "description": "Web component overlay for @formjourney/plugin-devtools — Shadow DOM event timeline, zero UI-framework dependency",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -57,11 +57,11 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@flowform/plugin-devtools": "workspace:^"
+    "@formjourney/plugin-devtools": "workspace:^"
   },
   "devDependencies": {
-    "@flowform/core": "workspace:*",
-    "@flowform/plugin-devtools": "workspace:*",
+    "@formjourney/core": "workspace:*",
+    "@formjourney/plugin-devtools": "workspace:*",
     "jsdom": "^25.0.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",

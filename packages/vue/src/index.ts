@@ -1,12 +1,12 @@
 export {
   createVueForm,
-  provideFlowForm,
+  provideFormJourney,
   type CreateVueFormOptions,
 } from './create.js';
 export {
   provideForm,
-  useFlowFormContext,
-  type FlowFormContext,
+  useFormJourneyContext,
+  type FormJourneyContext,
   type CreateContextOptions,
   type ValidationMode,
   type ReValidationMode,
@@ -30,4 +30,4 @@ export type {
   PathValue,
   Validator,
   TriggerTarget,
-} from '@flowform/core';
+} from '@formjourney/core';

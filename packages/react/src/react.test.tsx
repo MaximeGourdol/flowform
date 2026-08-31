@@ -1,6 +1,6 @@
-import type { ErrorMap, Validator } from '@flowform/core';
-import { createForm } from '@flowform/core';
-import { stepsConditionalPlugin } from '@flowform/plugin-steps-conditional';
+import type { ErrorMap, Validator } from '@formjourney/core';
+import { createForm } from '@formjourney/core';
+import { stepsConditionalPlugin } from '@formjourney/plugin-steps-conditional';
 import {
   act,
   cleanup,

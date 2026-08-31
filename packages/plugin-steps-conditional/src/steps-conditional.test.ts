@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createForm, type FormCore } from '@flowform/core';
+import { createForm, type FormCore } from '@formjourney/core';
 import { stepsConditionalPlugin } from './steps-conditional.js';
 
 interface Values {

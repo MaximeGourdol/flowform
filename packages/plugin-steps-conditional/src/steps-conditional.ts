@@ -1,4 +1,4 @@
-import type { FormCore, Path, Plugin } from '@flowform/core';
+import type { FormCore, Path, Plugin } from '@formjourney/core';
 import { evaluateCondition, type Condition } from './conditions.js';
 
 export interface ConditionalClear<TValues> {

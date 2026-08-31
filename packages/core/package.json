@@ -1,5 +1,5 @@
 {
-  "name": "@flowform/core",
+  "name": "@formjourney/core",
   "version": "0.1.0",
   "description": "Headless engine for multi-step form management",
   "license": "MIT",
