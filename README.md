@@ -1,5 +1,11 @@
 # flowform
 
+[![CI](https://github.com/MaximeGourdol/flowform/actions/workflows/ci.yml/badge.svg)](https://github.com/MaximeGourdol/flowform/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![types](https://img.shields.io/npm/types/@flowform/core.svg?logo=typescript&logoColor=white)](https://www.npmjs.com/package/@flowform/core)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@flowform/core.svg)](https://bundlephobia.com/package/@flowform/core)
+[![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-f69220.svg?logo=pnpm&logoColor=white)](https://pnpm.io)
+
 Headless multi-step form management for TypeScript. The engine has no runtime
 dependencies and knows nothing about any UI framework; bindings and validation
 adapters live in separate packages you add only if you need them.
